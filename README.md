@@ -1,3 +1,15 @@
-# Welcome to your Lovable project
+# Cosmic Remedies by Sia
 
-TODO: Document your project here
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+## Production
+
+```bash
+npm run build
+npm run start
+```

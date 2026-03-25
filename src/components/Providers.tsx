@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 
 interface ProvidersProps {
@@ -9,10 +10,12 @@ interface ProvidersProps {
 }
 
 const Providers = ({ children }: ProvidersProps) => (
-  <CartProvider>
-    {children}
-    <Sonner />
-  </CartProvider>
+  <AuthProvider>
+    <CartProvider>
+      {children}
+      <Sonner />
+    </CartProvider>
+  </AuthProvider>
 );
 
 export default Providers;
