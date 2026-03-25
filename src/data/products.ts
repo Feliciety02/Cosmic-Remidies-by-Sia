@@ -1,3 +1,5 @@
+import type { StaticImageData } from "next/image";
+
 import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
 import product3 from "@/assets/product-3.jpg";
@@ -11,7 +13,7 @@ export interface Product {
   description: string;
   price: number;
   originalPrice?: number;
-  image: string;
+  image: StaticImageData;
   rating: number;
   badge?: string;
   category: string;
@@ -100,3 +102,5 @@ export const testimonials = [
   { name: "Meera D.", text: "The numerology guide helped me understand so much about myself. Simple, clear, and deeply insightful.", rating: 4, location: "Delhi, India" },
   { name: "Emma W.", text: "I bought the bundle and it's the best investment I've made in my spiritual journey. Highly recommend!", rating: 5, location: "Sydney, AU" },
 ];
+
+export const getProductById = (id: string) => products.find((product) => product.id === id);
