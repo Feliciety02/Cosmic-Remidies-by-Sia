@@ -66,7 +66,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ account, profile }) {
       if (account?.provider === "google") {
-        return profile?.email_verified === true;
+        return (profile as { email_verified?: boolean } | undefined)?.email_verified === true;
       }
 
       return true;

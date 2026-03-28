@@ -35,7 +35,25 @@ interface ProductModalProps {
   editProduct?: EditableProduct | null;
 }
 
-const getInitialFormState = (product?: EditableProduct | null) => ({
+type ProductFormState = {
+  id: number;
+  title: string;
+  slug: string;
+  price: string;
+  compareAtPrice: string;
+  category: string;
+  status: string;
+  visibility: EditableProduct["visibility"];
+  description: string;
+  coverAsset: string;
+  pdfAsset: string;
+  labels: string[];
+  featured: boolean;
+  downloads: string;
+  sales: string;
+};
+
+const getInitialFormState = (product?: EditableProduct | null): ProductFormState => ({
   id: product?.id ?? Date.now(),
   title: product?.title ?? "",
   slug: product?.slug ?? "",
@@ -161,7 +179,7 @@ export const ProductModal = ({ open, onOpenChange, onSave, editProduct }: Produc
               <Label htmlFor="product-visibility">Visibility</Label>
               <Select
                 value={form.visibility}
-                onValueChange={(value) => setForm((current) => ({ ...current, visibility: value }))}
+                onValueChange={(value: EditableProduct["visibility"]) => setForm((current) => ({ ...current, visibility: value }))}
               >
                 <SelectTrigger id="product-visibility">
                   <SelectValue placeholder="Select visibility" />

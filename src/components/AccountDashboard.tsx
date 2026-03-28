@@ -89,7 +89,7 @@ const AccountDashboard = () => {
           <Button
             type="button"
             variant="ghost"
-            onClick={() => {
+            onClick={async () => {
               await logout();
               router.push("/");
               router.refresh();
