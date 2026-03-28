@@ -20,15 +20,15 @@ export const MetricCard = ({
   icon: Icon,
   iconClassName,
 }: MetricCardProps) => (
-  <Card className="p-5">
+  <Card className="overflow-hidden rounded-[1.5rem] border-white/70 bg-white/90 p-5 shadow-[0_18px_50px_rgba(66,97,129,0.08)]">
     <div className="flex items-start justify-between gap-4">
       <div>
-        <p className="text-sm text-muted-foreground">{title}</p>
-        <p className="mt-2 text-2xl font-semibold">{value}</p>
+        <p className="text-sm font-medium text-muted-foreground">{title}</p>
+        <p className="mt-2 text-3xl font-semibold tracking-tight">{value}</p>
       </div>
       <div
         className={cn(
-          "flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary",
+          "flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-inner",
           iconClassName,
           iconClassName?.includes("gradient") ? "text-primary-foreground" : "",
         )}
@@ -37,7 +37,7 @@ export const MetricCard = ({
       </div>
     </div>
 
-    <div className="mt-4 flex items-center gap-2 text-sm">
+    <div className="mt-5 flex items-center gap-2 border-t border-border/60 pt-4 text-sm">
       {changeType === "positive" ? <ArrowUpRight className="h-4 w-4 text-emerald-600" /> : null}
       {changeType === "negative" ? <ArrowDownRight className="h-4 w-4 text-red-600" /> : null}
       <span

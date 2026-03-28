@@ -250,6 +250,7 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                 <Input
                   ref={loginEmailRef}
                   id="login-email"
+                  name="email"
                   type="email"
                   autoComplete="email"
                   placeholder="admin@example.com"
@@ -268,6 +269,7 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                 <KeyRound className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <Input
                   id="login-password"
+                  name="password"
                   type={showLoginPassword ? "text" : "password"}
                   autoComplete="current-password"
                   placeholder="Enter your admin password"

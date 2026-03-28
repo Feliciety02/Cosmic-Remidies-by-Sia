@@ -1,7 +1,9 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { Download, Mail, Search, Users as UsersIcon } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import { PaginationControls } from "@/components/admin/PaginationControls";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -24,11 +26,54 @@ const subscribers = [
   { name: "Anna Lee", email: "anna@email.com", source: "Blog Signup", joined: "Mar 20, 2026" },
 ];
 
-const Customers = () => (
-  <AdminLayout title="Customers" subtitle="Manage customers and subscribers">
-    <Tabs defaultValue="customers" className="space-y-6">
+const Customers = () => {
+  const [query, setQuery] = useState("");
+  const [customerPage, setCustomerPage] = useState(1);
+  const [subscriberPage, setSubscriberPage] = useState(1);
+
+  const filteredCustomers = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    return customers.filter((customer) => {
+      return !normalizedQuery || customer.name.toLowerCase().includes(normalizedQuery) || customer.email.toLowerCase().includes(normalizedQuery);
+    });
+  }, [query]);
+
+  const filteredSubscribers = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    return subscribers.filter((subscriber) => {
+      return (
+        !normalizedQuery ||
+        subscriber.name.toLowerCase().includes(normalizedQuery) ||
+        subscriber.email.toLowerCase().includes(normalizedQuery) ||
+        subscriber.source.toLowerCase().includes(normalizedQuery)
+      );
+    });
+  }, [query]);
+
+  const customerPageSize = 4;
+  const subscriberPageSize = 4;
+  const paginatedCustomers = filteredCustomers.slice((customerPage - 1) * customerPageSize, customerPage * customerPageSize);
+  const paginatedSubscribers = filteredSubscribers.slice((subscriberPage - 1) * subscriberPageSize, subscriberPage * subscriberPageSize);
+
+  return (
+    <AdminLayout title="Customers" subtitle="Manage customers and subscribers">
+      <Tabs defaultValue="customers" className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            { label: "Customers", value: customers.length, note: "Recorded buyer accounts" },
+            { label: "Subscribers", value: subscribers.length, note: "Lead magnet and newsletter signups" },
+            { label: "Repeat buyers", value: customers.filter((customer) => customer.purchases > 1).length, note: "Strongest retention segment" },
+          ].map((item) => (
+            <Card key={item.label} className="rounded-[1.5rem] border-white/70 bg-white/90 p-5 shadow-[0_18px_50px_rgba(66,97,129,0.08)]">
+              <p className="text-sm text-muted-foreground">{item.label}</p>
+              <p className="mt-2 text-3xl font-semibold tracking-tight">{item.value}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{item.note}</p>
+            </Card>
+          ))}
+        </div>
+
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <TabsList className="bg-secondary">
+        <TabsList className="h-auto rounded-2xl border border-white/70 bg-white/90 p-1.5 shadow-sm">
           <TabsTrigger value="customers" className="gap-2">
             <UsersIcon className="h-4 w-4" />
             Customers
@@ -38,7 +83,7 @@ const Customers = () => (
             Subscribers
           </TabsTrigger>
         </TabsList>
-        <Button variant="outline" className="gap-2">
+        <Button variant="outline" className="gap-2 rounded-xl border-white bg-white/90">
           <Download className="h-4 w-4" />
           Export
         </Button>
@@ -46,15 +91,27 @@ const Customers = () => (
 
       <div className="relative w-full sm:w-80">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input placeholder="Search by name or email..." className="border-border bg-card pl-9" />
+        <Input
+          id="customers-search"
+          name="customersSearch"
+          placeholder="Search by name or email..."
+          className="border-white bg-white/90 pl-9"
+          autoComplete="off"
+          value={query}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setCustomerPage(1);
+            setSubscriberPage(1);
+          }}
+        />
       </div>
 
       <TabsContent value="customers">
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden rounded-[1.75rem] border-white/70 bg-white/90 shadow-[0_18px_52px_rgba(66,97,129,0.08)]">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-muted/50 text-muted-foreground">
+                <tr className="bg-slate-50/80 text-muted-foreground">
                   <th className="px-4 py-3 text-left font-medium">Customer</th>
                   <th className="hidden px-4 py-3 text-left font-medium md:table-cell">Purchases</th>
                   <th className="px-4 py-3 text-left font-medium">Total Spent</th>
@@ -63,8 +120,8 @@ const Customers = () => (
                 </tr>
               </thead>
               <tbody>
-                {customers.map((customer) => (
-                  <tr key={customer.email} className="border-b border-border/50 transition-colors hover:bg-muted/20">
+                {paginatedCustomers.map((customer) => (
+                  <tr key={customer.email} className="border-b border-border/50 transition-colors hover:bg-slate-50/70">
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-3">
                         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
@@ -85,23 +142,30 @@ const Customers = () => (
               </tbody>
             </table>
           </div>
+          <PaginationControls
+            page={customerPage}
+            pageSize={customerPageSize}
+            totalItems={filteredCustomers.length}
+            itemLabel="customers"
+            onPageChange={setCustomerPage}
+          />
         </Card>
       </TabsContent>
 
       <TabsContent value="subscribers">
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden rounded-[1.75rem] border-white/70 bg-white/90 shadow-[0_18px_52px_rgba(66,97,129,0.08)]">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-muted/50 text-muted-foreground">
+                <tr className="bg-slate-50/80 text-muted-foreground">
                   <th className="px-4 py-3 text-left font-medium">Subscriber</th>
                   <th className="hidden px-4 py-3 text-left font-medium md:table-cell">Source</th>
                   <th className="px-4 py-3 text-left font-medium">Joined</th>
                 </tr>
               </thead>
               <tbody>
-                {subscribers.map((subscriber) => (
-                  <tr key={subscriber.email} className="border-b border-border/50 transition-colors hover:bg-muted/20">
+                {paginatedSubscribers.map((subscriber) => (
+                  <tr key={subscriber.email} className="border-b border-border/50 transition-colors hover:bg-slate-50/70">
                     <td className="px-4 py-3.5">
                       <div>
                         <p className="font-medium">{subscriber.name}</p>
@@ -115,10 +179,18 @@ const Customers = () => (
               </tbody>
             </table>
           </div>
+          <PaginationControls
+            page={subscriberPage}
+            pageSize={subscriberPageSize}
+            totalItems={filteredSubscribers.length}
+            itemLabel="subscribers"
+            onPageChange={setSubscriberPage}
+          />
         </Card>
       </TabsContent>
-    </Tabs>
-  </AdminLayout>
-);
+      </Tabs>
+    </AdminLayout>
+  );
+};
 
 export default Customers;

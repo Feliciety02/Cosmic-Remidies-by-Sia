@@ -84,16 +84,16 @@ const SettingsPage = () => (
           <h3 className="mb-4 text-lg font-semibold">Store Information</h3>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-sm font-medium">Store Name</label>
-              <Input defaultValue="Cosmic Remedies by Sia" className="border-0 bg-secondary" />
+              <label htmlFor="store-name" className="mb-1.5 block text-sm font-medium">Store Name</label>
+              <Input id="store-name" name="storeName" defaultValue="Cosmic Remedies by Sia" className="border-0 bg-secondary" />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium">Contact Email</label>
-              <Input defaultValue="hello@cosmicremedies.com" className="border-0 bg-secondary" />
+              <label htmlFor="contact-email" className="mb-1.5 block text-sm font-medium">Contact Email</label>
+              <Input id="contact-email" name="contactEmail" defaultValue="hello@cosmicremedies.com" className="border-0 bg-secondary" />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium">Store URL</label>
-              <Input defaultValue="https://cosmicremediesbysia.com" className="border-0 bg-secondary" />
+              <label htmlFor="store-url" className="mb-1.5 block text-sm font-medium">Store URL</label>
+              <Input id="store-url" name="storeUrl" defaultValue="https://cosmicremediesbysia.com" className="border-0 bg-secondary" />
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium">Timezone</label>
@@ -127,17 +127,17 @@ const SettingsPage = () => (
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-1.5 block text-sm font-medium">Primary Color</label>
+                <label htmlFor="primary-color" className="mb-1.5 block text-sm font-medium">Primary Color</label>
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-lg gradient-primary" />
-                  <Input defaultValue="#4d9e8e" className="border-0 bg-secondary" />
+                  <Input id="primary-color" name="primaryColor" defaultValue="#4d9e8e" className="border-0 bg-secondary" />
                 </div>
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium">Accent Color</label>
+                <label htmlFor="accent-color" className="mb-1.5 block text-sm font-medium">Accent Color</label>
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-lg gradient-gold" />
-                  <Input defaultValue="#c5973e" className="border-0 bg-secondary" />
+                  <Input id="accent-color" name="accentColor" defaultValue="#c5973e" className="border-0 bg-secondary" />
                 </div>
               </div>
             </div>

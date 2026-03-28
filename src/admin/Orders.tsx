@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Download, Filter, Search } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import { PaginationControls } from "@/components/admin/PaginationControls";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -22,23 +23,68 @@ const orders = [
 
 const Orders = () => {
   const router = useRouter();
+  const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
-  const filteredOrders = activeFilter === "All" ? orders : orders.filter((order) => order.status === activeFilter);
+  const [page, setPage] = useState(1);
+
+  const filteredOrders = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    return orders.filter((order) => {
+      const matchesFilter = activeFilter === "All" ? true : order.status === activeFilter;
+      const matchesQuery =
+        !normalizedQuery ||
+        order.id.toLowerCase().includes(normalizedQuery) ||
+        order.customer.toLowerCase().includes(normalizedQuery) ||
+        order.email.toLowerCase().includes(normalizedQuery) ||
+        order.product.toLowerCase().includes(normalizedQuery);
+
+      return matchesFilter && matchesQuery;
+    });
+  }, [activeFilter, query]);
+
+  const pageSize = 5;
+  const paginatedOrders = filteredOrders.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <AdminLayout title="Orders" subtitle="Track and manage all orders">
       <div className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            { label: "Total orders", value: orders.length, note: "Across all payment providers" },
+            { label: "Completed", value: orders.filter((order) => order.status === "Completed").length, note: "Ready for fulfillment" },
+            { label: "Pending or refunded", value: orders.filter((order) => order.status !== "Completed").length, note: "Needs review or follow-up" },
+          ].map((item) => (
+            <Card key={item.label} className="rounded-[1.5rem] border-white/70 bg-white/90 p-5 shadow-[0_18px_50px_rgba(66,97,129,0.08)]">
+              <p className="text-sm text-muted-foreground">{item.label}</p>
+              <p className="mt-2 text-3xl font-semibold tracking-tight">{item.value}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{item.note}</p>
+            </Card>
+          ))}
+        </div>
+
         <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div className="flex w-full items-center gap-3 sm:w-auto">
             <div className="relative flex-1 sm:w-80">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input placeholder="Search orders..." className="border-border bg-card pl-9" />
+              <Input
+                id="orders-search"
+                name="ordersSearch"
+                placeholder="Search orders..."
+                className="border-white bg-white/90 pl-9"
+                autoComplete="off"
+                value={query}
+                onChange={(event) => {
+                  setQuery(event.target.value);
+                  setPage(1);
+                }}
+              />
             </div>
-            <Button variant="outline" size="icon" className="shrink-0">
+            <Button variant="outline" size="icon" className="shrink-0 rounded-xl border-white bg-white/90">
               <Filter className="h-4 w-4" />
             </Button>
           </div>
-          <Button variant="outline" className="gap-2 shrink-0">
+          <Button variant="outline" className="shrink-0 gap-2 rounded-xl border-white bg-white/90">
             <Download className="h-4 w-4" />
             Export CSV
           </Button>
@@ -50,7 +96,10 @@ const Orders = () => {
               key={filter}
               variant={filter === activeFilter ? "default" : "outline"}
               size="sm"
-              onClick={() => setActiveFilter(filter)}
+              onClick={() => {
+                setActiveFilter(filter);
+                setPage(1);
+              }}
               className={filter === activeFilter ? "gradient-primary text-primary-foreground" : ""}
             >
               {filter}
@@ -58,11 +107,11 @@ const Orders = () => {
           ))}
         </div>
 
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden rounded-[1.75rem] border-white/70 bg-white/90 shadow-[0_18px_52px_rgba(66,97,129,0.08)]">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-muted/50 text-muted-foreground">
+                <tr className="bg-slate-50/80 text-muted-foreground">
                   <th className="px-4 py-3 text-left font-medium">Order</th>
                   <th className="px-4 py-3 text-left font-medium">Customer</th>
                   <th className="hidden px-4 py-3 text-left font-medium lg:table-cell">Product</th>
@@ -73,11 +122,11 @@ const Orders = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredOrders.map((order) => (
+                {paginatedOrders.map((order) => (
                   <tr
                     key={order.id}
                     onClick={() => router.push(`/admin/orders/${order.slug}`)}
-                    className="cursor-pointer border-b border-border/50 transition-colors hover:bg-muted/20"
+                    className="cursor-pointer border-b border-border/50 transition-colors hover:bg-slate-50/70"
                   >
                     <td className="px-4 py-3.5 font-medium text-primary">{order.id}</td>
                     <td className="px-4 py-3.5">
@@ -96,6 +145,13 @@ const Orders = () => {
               </tbody>
             </table>
           </div>
+          <PaginationControls
+            page={page}
+            pageSize={pageSize}
+            totalItems={filteredOrders.length}
+            itemLabel="orders"
+            onPageChange={setPage}
+          />
         </Card>
       </div>
     </AdminLayout>

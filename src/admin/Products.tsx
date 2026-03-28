@@ -2,9 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Download, Edit, Eye, Layers3, MoreHorizontal, Percent, Plus, Search, Ticket, Trash2 } from "lucide-react";
+import { Download, Edit, Eye, Layers3, MoreHorizontal, Percent, Plus, Search, SlidersHorizontal, Ticket, Trash2 } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { DeleteConfirmModal } from "@/components/admin/DeleteConfirmModal";
+import { PaginationControls } from "@/components/admin/PaginationControls";
 import { ProductModal, type EditableProduct } from "@/components/admin/ProductModal";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Button } from "@/components/ui/button";
@@ -133,6 +134,7 @@ const Products = () => {
   const [bundles, setBundles] = useState(initialBundles);
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<"All" | "Active" | "Draft" | "Hidden">("All");
+  const [catalogPage, setCatalogPage] = useState(1);
   const [addOpen, setAddOpen] = useState(false);
   const [editProduct, setEditProduct] = useState<EditableProduct | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<EditableProduct | null>(null);
@@ -174,6 +176,8 @@ const Products = () => {
   const activeProducts = products.filter((product) => product.visibility === "Active").length;
   const draftProducts = products.filter((product) => product.visibility === "Draft").length;
   const featuredProducts = products.filter((product) => product.featured).length;
+  const catalogPageSize = 6;
+  const paginatedProducts = filteredProducts.slice((catalogPage - 1) * catalogPageSize, catalogPage * catalogPageSize);
 
   const upsertProduct = (product: EditableProduct) => {
     setProducts((current) => {
@@ -274,7 +278,7 @@ const Products = () => {
           { label: "Drafts", value: draftProducts, sub: "Pending content or assets" },
           { label: "Featured", value: featuredProducts, sub: "Highlighted on storefront" },
         ].map((metric) => (
-          <Card key={metric.label} className="p-5">
+          <Card key={metric.label} className="rounded-[1.5rem] border-white/70 bg-white/90 p-5 shadow-[0_18px_50px_rgba(66,97,129,0.08)]">
             <p className="text-sm text-muted-foreground">{metric.label}</p>
             <p className="mt-2 text-3xl font-semibold text-foreground">{metric.value}</p>
             <p className="mt-1 text-xs text-muted-foreground">{metric.sub}</p>
@@ -282,47 +286,92 @@ const Products = () => {
         ))}
       </div>
 
-      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <div className="relative w-full sm:w-80">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search products..."
-            className="border-border bg-card pl-9"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-        </div>
-        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-          <Button variant="outline" className="gap-2 shrink-0">
-            <Download className="h-4 w-4" />
-            Export Catalog
-          </Button>
-          <Button onClick={() => setAddOpen(true)} className="gap-2 shrink-0 gradient-primary text-primary-foreground">
-            <Plus className="h-4 w-4" />
-            Add Product
-          </Button>
-        </div>
-      </div>
+      <Card className="overflow-hidden rounded-[1.75rem] border-white/70 bg-[linear-gradient(145deg,rgba(255,255,255,0.94)_0%,rgba(246,250,253,0.98)_100%)] p-5 shadow-[0_18px_52px_rgba(66,97,129,0.08)]">
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-center">
+            <div className="w-full max-w-xl">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-primary/70">Catalog controls</p>
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-sky-800/55" />
+                <Input
+                  id="products-search"
+                  name="productsSearch"
+                  placeholder="Search products, slugs, or categories..."
+                  className="h-14 rounded-2xl border border-white bg-white pl-11 pr-4 text-base shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] placeholder:text-muted-foreground/80"
+                  autoComplete="off"
+                  value={query}
+                  onChange={(event) => {
+                    setQuery(event.target.value);
+                    setCatalogPage(1);
+                  }}
+                />
+              </div>
+            </div>
 
-      <div className="flex flex-wrap gap-2">
-        {(["All", "Active", "Draft", "Hidden"] as const).map((filter) => (
-          <Button
-            key={filter}
-            variant={filter === activeFilter ? "default" : "outline"}
-            size="sm"
-            onClick={() => setActiveFilter(filter)}
-            className={filter === activeFilter ? "gradient-primary text-primary-foreground" : ""}
-          >
-            {filter}
-          </Button>
-        ))}
-      </div>
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+              <Button variant="outline" className="h-12 shrink-0 gap-2 rounded-2xl border-white bg-white/90 px-5">
+                <Download className="h-4 w-4" />
+                Export Catalog
+              </Button>
+              <Button onClick={() => setAddOpen(true)} className="h-12 shrink-0 gap-2 rounded-2xl px-5 gradient-primary text-primary-foreground">
+                <Plus className="h-4 w-4" />
+                Add Product
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex h-11 items-center gap-2 rounded-full bg-sky-100/80 px-4 text-sm font-medium text-sky-800">
+                <SlidersHorizontal className="h-4 w-4" />
+                Filter by status
+              </div>
+
+              <div className="flex flex-wrap gap-2 rounded-[1.2rem] border border-white/80 bg-white/85 p-2 shadow-sm">
+                {(["All", "Active", "Draft", "Hidden"] as const).map((filter) => {
+                  const count =
+                    filter === "All" ? totalProducts : products.filter((product) => product.visibility === filter).length;
+
+                  return (
+                    <button
+                      key={filter}
+                      type="button"
+                      onClick={() => {
+                        setActiveFilter(filter);
+                        setCatalogPage(1);
+                      }}
+                      className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-all ${
+                        filter === activeFilter
+                          ? "bg-[linear-gradient(135deg,#3f79b4_0%,#245f93_100%)] text-white shadow-[0_14px_30px_rgba(43,88,131,0.24)]"
+                          : "text-slate-700 hover:bg-slate-100"
+                      }`}
+                    >
+                      <span>{filter}</span>
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-[11px] ${
+                          filter === activeFilter ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="rounded-full border border-sky-200/70 bg-white/90 px-4 py-2 text-sm text-muted-foreground">
+              Showing <span className="font-semibold text-foreground">{filteredProducts.length}</span> matching products
+            </div>
+          </div>
+        </div>
+      </Card>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 md:gap-6">
-        {filteredProducts.map((product) => (
-          <Card key={product.id} className="group p-5 transition-shadow hover:shadow-md">
+        {paginatedProducts.map((product) => (
+          <Card key={product.id} className="group rounded-[1.5rem] border-white/70 bg-white/90 p-5 shadow-[0_18px_50px_rgba(66,97,129,0.08)] transition-shadow hover:shadow-[0_22px_60px_rgba(66,97,129,0.12)]">
             <div className="mb-4 flex items-start justify-between">
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-secondary text-base font-semibold text-primary">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-50 text-base font-semibold text-primary">
                 {product.title
                   .split(" ")
                   .slice(0, 2)
@@ -331,7 +380,7 @@ const Products = () => {
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button type="button" className="rounded-lg p-1.5 opacity-0 transition-colors group-hover:opacity-100 hover:bg-secondary">
+                  <button type="button" className="rounded-xl p-1.5 opacity-0 transition-colors group-hover:opacity-100 hover:bg-slate-100">
                     <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
                   </button>
                 </DropdownMenuTrigger>
@@ -384,6 +433,15 @@ const Products = () => {
           </Card>
         ))}
       </div>
+      <Card className="overflow-hidden rounded-[1.5rem] border-white/70 bg-white/90 shadow-[0_18px_50px_rgba(66,97,129,0.08)]">
+        <PaginationControls
+          page={catalogPage}
+          pageSize={catalogPageSize}
+          totalItems={filteredProducts.length}
+          itemLabel="products"
+          onPageChange={setCatalogPage}
+        />
+      </Card>
     </div>
   );
 
@@ -409,7 +467,7 @@ const Products = () => {
 
         <TabsContent value="discounts" className="space-y-6">
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-            <Card className="p-6">
+            <Card className="rounded-[1.75rem] border-white/70 bg-white/90 p-6 shadow-[0_18px_52px_rgba(66,97,129,0.08)]">
               <div className="mb-5">
                 <h3 className="text-lg font-semibold">Discount Codes</h3>
                 <p className="text-sm text-muted-foreground">Create percentage or fixed discounts with expiry and usage controls.</p>
@@ -417,7 +475,7 @@ const Products = () => {
 
               <div className="space-y-4">
                 {discounts.map((discount) => (
-                  <div key={discount.id} className="rounded-2xl border p-4">
+                  <div key={discount.id} className="rounded-2xl border border-border/70 bg-slate-50/70 p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div>
                         <p className="text-base font-semibold text-foreground">{discount.code}</p>
@@ -450,7 +508,7 @@ const Products = () => {
               </div>
             </Card>
 
-            <Card className="p-6">
+            <Card className="rounded-[1.75rem] border-white/70 bg-white/90 p-6 shadow-[0_18px_52px_rgba(66,97,129,0.08)]">
               <h3 className="mb-4 text-lg font-semibold">Create Discount</h3>
               <div className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -579,7 +637,7 @@ const Products = () => {
 
         <TabsContent value="bundles" className="space-y-6">
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-            <Card className="p-6">
+            <Card className="rounded-[1.75rem] border-white/70 bg-white/90 p-6 shadow-[0_18px_52px_rgba(66,97,129,0.08)]">
               <div className="mb-5">
                 <h3 className="text-lg font-semibold">Bundle Offers</h3>
                 <p className="text-sm text-muted-foreground">Group products together and present a combined savings offer.</p>
@@ -587,7 +645,7 @@ const Products = () => {
 
               <div className="space-y-4">
                 {bundles.map((bundle) => (
-                  <div key={bundle.id} className="rounded-2xl border p-4">
+                  <div key={bundle.id} className="rounded-2xl border border-border/70 bg-slate-50/70 p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div>
                         <p className="text-base font-semibold text-foreground">{bundle.title}</p>
@@ -617,7 +675,7 @@ const Products = () => {
               </div>
             </Card>
 
-            <Card className="p-6">
+            <Card className="rounded-[1.75rem] border-white/70 bg-white/90 p-6 shadow-[0_18px_52px_rgba(66,97,129,0.08)]">
               <h3 className="mb-4 text-lg font-semibold">Create Bundle</h3>
               <div className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">

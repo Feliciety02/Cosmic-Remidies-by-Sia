@@ -4,18 +4,7 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  BarChart3,
-  FileText,
-  LayoutDashboard,
-  LogOut,
-  Menu,
-  Package,
-  Settings,
-  ShoppingCart,
-  Store,
-  Users,
-} from "lucide-react";
+import { BarChart3, FileText, LayoutDashboard, LogOut, Menu, Package, Settings, ShoppingCart, Store, Users } from "lucide-react";
 import logo from "@/assets/logo.svg";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -38,21 +27,32 @@ const adminNavItems = [
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
-const AdminNav = ({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) => (
-  <div className="flex h-full flex-col bg-card">
-    <div className="border-b px-5 py-5">
+const AdminNav = ({
+  pathname,
+  onNavigate,
+  onSignOut,
+}: {
+  pathname: string;
+  onNavigate?: () => void;
+  onSignOut: () => void;
+}) => (
+  <div className="flex h-full flex-col bg-[linear-gradient(180deg,rgba(255,255,255,0.94)_0%,rgba(247,250,253,0.98)_100%)]">
+    <div className="border-b border-white/70 px-5 py-6">
       <Link href="/admin" className="flex items-center gap-3" onClick={onNavigate}>
-        <Image src={logo} alt="Cosmic Remedies by Sia" className="h-10 w-auto" priority />
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-sky-200/70 bg-white shadow-[0_12px_30px_rgba(67,103,142,0.14)]">
+          <Image src={logo} alt="Cosmic Remedies by Sia" className="h-8 w-auto" priority />
+        </div>
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Admin</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">Admin Suite</p>
           <p className="text-sm text-muted-foreground">Store control panel</p>
         </div>
       </Link>
     </div>
 
-    <nav className="flex-1 space-y-1 px-3 py-4">
+    <nav className="flex-1 space-y-1 px-3 py-5">
       {adminNavItems.map((item) => {
-        const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+        const isDashboard = item.href === "/admin";
+        const isActive = isDashboard ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
         return (
           <Link
@@ -60,8 +60,10 @@ const AdminNav = ({ pathname, onNavigate }: { pathname: string; onNavigate?: () 
             href={item.href}
             onClick={onNavigate}
             className={cn(
-              "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
-              isActive ? "bg-primary text-primary-foreground" : "text-foreground/70 hover:bg-muted hover:text-foreground",
+              "flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-medium transition-all",
+              isActive
+                ? "bg-[linear-gradient(135deg,hsl(204_52%_42%)_0%,hsl(208_57%_30%)_100%)] text-primary-foreground shadow-[0_18px_38px_rgba(53,96,144,0.22)]"
+                : "text-foreground/70 hover:bg-white hover:text-foreground hover:shadow-sm",
             )}
           >
             <item.icon className="h-4 w-4" />
@@ -71,13 +73,19 @@ const AdminNav = ({ pathname, onNavigate }: { pathname: string; onNavigate?: () 
       })}
     </nav>
 
-    <div className="border-t px-4 py-4">
-      <Button asChild variant="outline" className="w-full justify-start gap-2">
-        <Link href="/">
-          <Store className="h-4 w-4" />
-          View Storefront
-        </Link>
-      </Button>
+    <div className="border-t border-white/70 px-4 py-4">
+      <div className="space-y-2">
+        <Button asChild variant="outline" className="w-full justify-start gap-2 rounded-xl border-white bg-white/80">
+          <Link href="/" onClick={onNavigate}>
+            <Store className="h-4 w-4" />
+            View Storefront
+          </Link>
+        </Button>
+        <Button variant="ghost" className="w-full justify-start gap-2 rounded-xl" onClick={onSignOut}>
+          <LogOut className="h-4 w-4" />
+          Sign Out
+        </Button>
+      </div>
     </div>
   </div>
 );
@@ -86,56 +94,43 @@ export const AdminLayout = ({ title, subtitle, children }: AdminLayoutProps) => 
   const pathname = usePathname() ?? "/admin";
   const router = useRouter();
   const { logout } = useAuth();
+  const handleSignOut = async () => {
+    await logout();
+    router.push("/");
+    router.refresh();
+  };
 
   return (
-    <div className="min-h-screen bg-secondary/35">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r lg:block">
-        <AdminNav pathname={pathname} />
+    <div className="min-h-screen bg-[linear-gradient(180deg,#f7fbfe_0%,#f2f6fa_48%,#f8fbfd_100%)]">
+      <div className="pointer-events-none fixed inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,rgba(123,185,227,0.16),transparent_60%)]" />
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-white/70 bg-white/70 backdrop-blur-xl lg:block">
+        <AdminNav pathname={pathname} onSignOut={handleSignOut} />
       </aside>
 
       <div className="lg:pl-72">
-        <header className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur">
-          <div className="flex items-center justify-between gap-4 px-4 py-4 md:px-6 lg:px-8">
+        <header className="sticky top-0 z-20 border-b border-white/70 bg-background/80 backdrop-blur-xl">
+          <div className="flex items-center gap-4 px-4 py-3 md:px-6 lg:px-8">
             <div className="flex items-center gap-3">
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="outline" size="icon" className="lg:hidden">
+                  <Button variant="outline" size="icon" className="rounded-xl border-white bg-white/80 lg:hidden">
                     <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="w-72 p-0">
-                  <AdminNav pathname={pathname} />
+                  <AdminNav pathname={pathname} onSignOut={handleSignOut} />
                 </SheetContent>
               </Sheet>
 
               <div>
-                <h1 className="font-display text-2xl font-bold md:text-3xl">{title}</h1>
-                {subtitle ? <p className="text-sm text-muted-foreground">{subtitle}</p> : null}
+                <h1 className="font-display text-[1.85rem] font-bold leading-none md:text-[2.15rem]">{title}</h1>
+                {subtitle ? <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p> : null}
               </div>
-            </div>
-
-            <div className="hidden items-center gap-2 sm:flex">
-              <Button asChild variant="outline">
-                <Link href="/">Open Storefront</Link>
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                className="gap-2"
-                onClick={async () => {
-                  await logout();
-                  router.push("/");
-                  router.refresh();
-                }}
-              >
-                <LogOut className="h-4 w-4" />
-                Sign Out
-              </Button>
             </div>
           </div>
         </header>
 
-        <main className="px-4 py-6 md:px-6 lg:px-8 lg:py-8">{children}</main>
+        <main className="relative px-4 py-6 md:px-6 lg:px-8 lg:py-8">{children}</main>
       </div>
     </div>
   );
