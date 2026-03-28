@@ -68,8 +68,8 @@
     line-height: 1.7;
     background-image:
       radial-gradient(circle at top, rgba(123, 185, 227, 0.12), transparent 34%),
-      radial-gradient(circle at 18% 22%, rgba(205, 182, 145, 0.12), transparent 26%),
-      linear-gradient(180deg, rgba(252, 249, 244, 0.98), rgba(247, 242, 234, 0.99));
+      radial-gradient(circle at 18% 22%, rgba(214, 227, 245, 0.12), transparent 26%),
+      linear-gradient(180deg, rgba(252, 253, 255, 0.98), rgba(244, 248, 252, 0.99));
   }
 
   h1,

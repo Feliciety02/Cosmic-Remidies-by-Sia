@@ -38,7 +38,7 @@ const Hero = () => (
       className="absolute inset-0"
       style={{
         background:
-          "radial-gradient(ellipse 72% 58% at 50% 0%, rgba(123,185,227,0.16) 0%, transparent 65%), radial-gradient(circle at 20% 24%, rgba(217,188,146,0.16) 0%, transparent 30%), linear-gradient(160deg, #fcfaf5 0%, #f5efe6 52%, #fbf7f1 100%)",
+          "radial-gradient(ellipse 72% 58% at 50% 0%, rgba(123,185,227,0.12) 0%, transparent 65%), radial-gradient(circle at 20% 24%, rgba(214,227,245,0.14) 0%, transparent 30%), linear-gradient(160deg, #fcfdff 0%, #f4f8fc 52%, #fbfcfe 100%)",
       }}
     />
     <div
@@ -77,23 +77,23 @@ const Hero = () => (
 
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <Link
-            href={buildAuthHref("login")}
-            className="group inline-flex items-center gap-2 rounded-full bg-[linear-gradient(135deg,#4d88d8_0%,#2c6dbe_100%)] px-8 py-4 text-base font-semibold text-white shadow-lg shadow-blue-950/20 transition-all hover:-translate-y-0.5 hover:brightness-105 hover:shadow-xl hover:shadow-blue-950/30"
+            href="/shop"
+            className="group inline-flex min-w-[142px] items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#4d88d8_0%,#2c6dbe_100%)] px-9 py-4 text-[1.05rem] font-semibold text-white shadow-[0_14px_30px_rgba(48,95,170,0.28)] transition-all hover:-translate-y-0.5 hover:brightness-105 hover:shadow-[0_18px_36px_rgba(48,95,170,0.34)]"
           >
-            Login
+            Shop Guides
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
           <Link
-            href={buildAuthHref("create")}
-            className="inline-flex items-center gap-2 rounded-full border-2 border-sky-900/15 bg-white/65 px-8 py-4 text-base font-semibold text-stone-700 backdrop-blur-sm transition-all hover:border-primary/40 hover:bg-white hover:text-primary"
+            href="/free-guide"
+            className="inline-flex min-w-[142px] items-center justify-center rounded-full border-2 border-stone-300/80 bg-white/80 px-9 py-4 text-[1.05rem] font-semibold text-stone-700 shadow-[0_8px_22px_rgba(15,23,42,0.06)] backdrop-blur-sm transition-all hover:border-primary/35 hover:bg-white hover:text-primary"
           >
-            Sign Up
+            Free Guide
           </Link>
         </div>
 
-        <p className="mt-5 text-sm text-stone-400">
-          Already have an account?{" "}
-          <Link href={buildAuthHref("login")} className="font-medium text-sky-700 underline-offset-2 hover:underline">
+        <p className="mt-6 text-[1.02rem] text-stone-400">
+          Looking for your account?{" "}
+          <Link href={buildAuthHref("login")} className="font-semibold text-sky-700 underline-offset-2 hover:underline">
             Sign in here
           </Link>
         </p>
@@ -140,7 +140,7 @@ const Benefits = () => {
   ];
 
   return (
-    <section className="bg-[linear-gradient(180deg,#faf6ef_0%,#f5efe6_100%)] py-16 md:py-24">
+    <section className="bg-[linear-gradient(180deg,#fbfcfe_0%,#f3f7fb_100%)] py-16 md:py-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className={sectionHeading}>
           <p className={sectionEyebrow}>Why Choose Us</p>
@@ -190,9 +190,9 @@ const HowItWorks = () => {
   return (
     <section
       className="relative overflow-hidden py-16 md:py-24"
-      style={{ background: "linear-gradient(135deg, #fcfaf5 0%, #f3ede4 100%)" }}
+      style={{ background: "linear-gradient(135deg, #fcfdff 0%, #f2f6fb 100%)" }}
     >
-      <div className="pointer-events-none absolute right-0 top-0 h-72 w-72 opacity-10" style={{ background: "radial-gradient(circle, #5b8fe0 0%, transparent 70%)" }} />
+      <div className="pointer-events-none absolute right-0 top-0 h-72 w-72 opacity-[0.08]" style={{ background: "radial-gradient(circle, #5b8fe0 0%, transparent 70%)" }} />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className={sectionHeading}>
@@ -225,7 +225,7 @@ const HowItWorks = () => {
 const EmailCapture = () => (
   <section className={sectionShell}>
     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="relative mx-auto max-w-3xl overflow-hidden rounded-[2rem] border border-sky-200/50 bg-[linear-gradient(145deg,rgba(252,249,244,0.95)_0%,rgba(245,238,228,0.94)_100%)] p-10 text-center shadow-[0_24px_80px_rgba(110,97,72,0.10)] md:p-14">
+      <div className="relative mx-auto max-w-3xl overflow-hidden rounded-[2rem] border border-sky-200/40 bg-[linear-gradient(145deg,rgba(252,253,255,0.96)_0%,rgba(243,247,251,0.94)_100%)] p-10 text-center shadow-[0_24px_80px_rgba(72,98,128,0.08)] md:p-14">
         <div className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full border-4 border-sky-200/30" />
         <div className="pointer-events-none absolute -bottom-12 -left-12 h-48 w-48 rounded-full border-4 border-blue-200/20" />
 
@@ -258,21 +258,21 @@ const EmailCapture = () => (
 const FinalCta = () => (
   <section
     className="relative overflow-hidden py-20 md:py-24"
-    style={{ background: "linear-gradient(135deg, #396ca8 0%, #2f578f 50%, #243f6e 100%)" }}
+    style={{ background: "linear-gradient(180deg, #fbfcfe 0%, #f2f6fb 100%)" }}
   >
     <div
       className="pointer-events-none absolute inset-0"
-      style={{ background: "radial-gradient(ellipse 60% 80% at 50% 50%, rgba(123,185,227,0.14) 0%, transparent 70%)" }}
+      style={{ background: "radial-gradient(ellipse 60% 80% at 50% 50%, rgba(123,185,227,0.08) 0%, transparent 70%)" }}
     />
     <div className="container relative mx-auto px-4 text-center sm:px-6 lg:px-8">
-      <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-sky-200">Begin Your Journey</p>
-      <h2 className="mb-5 font-display text-3xl font-bold text-white md:text-4xl">Ready to Transform Your Spiritual Path?</h2>
-      <p className="mx-auto mb-10 max-w-lg text-lg leading-relaxed text-sky-100/80">
+      <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-sky-700">Begin Your Journey</p>
+      <h2 className="mb-5 font-display text-3xl font-bold text-stone-800 md:text-4xl">Ready to Transform Your Spiritual Path?</h2>
+      <p className="mx-auto mb-10 max-w-lg text-lg leading-relaxed text-stone-500">
         Browse our complete collection of premium guides and begin your healing journey today. Instant delivery and a 30-day satisfaction guarantee.
       </p>
       <Link
         href="/shop"
-        className="group inline-flex items-center gap-2 rounded-full bg-sky-500 px-10 py-4 text-base font-bold text-white shadow-lg shadow-black/30 transition-all hover:-translate-y-0.5 hover:bg-sky-400 hover:shadow-xl"
+        className="group inline-flex items-center gap-2 rounded-full bg-[linear-gradient(135deg,#4d88d8_0%,#2c6dbe_100%)] px-10 py-4 text-base font-bold text-white shadow-lg shadow-blue-950/20 transition-all hover:-translate-y-0.5 hover:brightness-105 hover:shadow-xl"
       >
         Shop All Guides
         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -316,7 +316,7 @@ const HomePage = ({ initialAuthMode, initialAuthError }: HomePageProps) => (
     <Benefits />
     <HowItWorks />
 
-    <section className="bg-[linear-gradient(180deg,#f6f0e7_0%,#fcf9f4_100%)] py-16 md:py-24">
+    <section className="bg-[linear-gradient(180deg,#f6f9fc_0%,#fbfcfe_100%)] py-16 md:py-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className={sectionHeading}>
           <p className={sectionEyebrow}>Reader Stories</p>
