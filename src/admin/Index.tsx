@@ -7,6 +7,7 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { MetricCard } from "@/components/admin/MetricCard";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Card } from "@/components/ui/card";
+import { products } from "@/data/products";
 
 const revenueData = [
   { month: "Jan", revenue: 4200 },
@@ -19,18 +20,18 @@ const revenueData = [
 ];
 
 const recentOrders = [
-  { id: "#CR-1042", customer: "Priya Sharma", product: "Vedic Astrology Guide", amount: "$49.99", status: "Completed", date: "Mar 24" },
-  { id: "#CR-1041", customer: "Amit Patel", product: "Cosmic Healing Bundle", amount: "$89.99", status: "Completed", date: "Mar 24" },
-  { id: "#CR-1040", customer: "Sarah Johnson", product: "Chakra Meditation PDF", amount: "$24.99", status: "Pending", date: "Mar 23" },
-  { id: "#CR-1039", customer: "Ravi Kumar", product: "Numerology Masterclass", amount: "$59.99", status: "Completed", date: "Mar 23" },
-  { id: "#CR-1038", customer: "Maya Chen", product: "Crystal Healing Guide", amount: "$34.99", status: "Refunded", date: "Mar 22" },
+  { id: "#CR-1042", customer: "Priya Sharma", product: products[1].title, amount: "$24.00", status: "Completed", date: "Mar 24" },
+  { id: "#CR-1041", customer: "Amit Patel", product: products[6].title, amount: "$18.00", status: "Completed", date: "Mar 24" },
+  { id: "#CR-1040", customer: "Sarah Johnson", product: products[4].title, amount: "$21.00", status: "Pending", date: "Mar 23" },
+  { id: "#CR-1039", customer: "Ravi Kumar", product: products[11].title, amount: "$23.00", status: "Completed", date: "Mar 23" },
+  { id: "#CR-1038", customer: "Maya Chen", product: products[19].title, amount: "$22.00", status: "Refunded", date: "Mar 22" },
 ];
 
 const topProducts = [
-  { name: "Vedic Astrology Guide", sales: 142, revenue: "$7,098" },
-  { name: "Cosmic Healing Bundle", sales: 98, revenue: "$8,819" },
-  { name: "Chakra Meditation PDF", sales: 87, revenue: "$2,174" },
-  { name: "Numerology Masterclass", sales: 64, revenue: "$3,839" },
+  { name: products[0].title, sales: 160, revenue: "$3,040" },
+  { name: products[1].title, sales: 154, revenue: "$3,696" },
+  { name: products[16].title, sales: 121, revenue: "$2,541" },
+  { name: products[4].title, sales: 118, revenue: "$2,478" },
 ];
 
 const Dashboard = () => (

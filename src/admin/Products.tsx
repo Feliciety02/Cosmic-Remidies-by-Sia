@@ -15,111 +15,43 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { products as storefrontProducts } from "@/data/products";
 
-const initialProducts: EditableProduct[] = [
-  {
-    id: 1,
-    title: "Vedic Astrology Guide",
-    slug: "vedic-astrology-guide",
-    price: 49.99,
-    compareAtPrice: 79.99,
-    category: "Astrology",
-    status: "Active",
-    visibility: "Active",
-    description: "Comprehensive PDF guide with forecasts, charts, and buyer-friendly remedies.",
-    coverAsset: "vedic-astrology-cover.webp",
-    pdfAsset: "vedic-astrology-guide.pdf",
-    labels: ["Best Seller", "Featured"],
-    featured: true,
-    downloads: 388,
-    sales: 142,
-  },
-  {
-    id: 2,
-    title: "Cosmic Healing Bundle",
-    slug: "cosmic-healing-bundle",
-    price: 89.99,
-    compareAtPrice: 129.99,
-    category: "Healing",
-    status: "Active",
-    visibility: "Active",
-    description: "Bundle offer combining the core healing PDFs for higher average order value.",
-    coverAsset: "cosmic-healing-bundle.webp",
-    pdfAsset: "cosmic-healing-bundle.zip",
-    labels: ["New"],
-    featured: true,
-    downloads: 190,
-    sales: 98,
-  },
-  {
-    id: 3,
-    title: "Chakra Meditation PDF",
-    slug: "chakra-meditation-pdf",
-    price: 24.99,
-    compareAtPrice: null,
-    category: "Meditation",
-    status: "Active",
-    visibility: "Active",
-    description: "Beginner-friendly meditation guide designed for mobile-first buyers.",
-    coverAsset: "chakra-meditation-cover.webp",
-    pdfAsset: "chakra-meditation.pdf",
-    labels: [],
-    featured: false,
-    downloads: 126,
-    sales: 87,
-  },
-  {
-    id: 4,
-    title: "Numerology Masterclass",
-    slug: "numerology-masterclass",
-    price: 59.99,
-    compareAtPrice: 79.99,
-    category: "Numerology",
-    status: "Active",
-    visibility: "Active",
-    description: "Advanced numerology digital guide with workbooks and follow-up templates.",
-    coverAsset: "numerology-masterclass.webp",
-    pdfAsset: "numerology-masterclass.pdf",
-    labels: ["On Sale"],
-    featured: false,
-    downloads: 112,
-    sales: 64,
-  },
-  {
-    id: 5,
-    title: "Crystal Healing Guide",
-    slug: "crystal-healing-guide",
-    price: 34.99,
-    compareAtPrice: null,
-    category: "Healing",
-    status: "Draft",
-    visibility: "Draft",
-    description: "Draft product waiting on final cover and sales copy approval.",
-    coverAsset: "crystal-healing-cover.webp",
-    pdfAsset: "crystal-healing-guide.pdf",
-    labels: [],
-    featured: false,
-    downloads: 0,
-    sales: 0,
-  },
-  {
-    id: 6,
-    title: "Vastu Shastra Essentials",
-    slug: "vastu-shastra-essentials",
-    price: 39.99,
-    compareAtPrice: null,
-    category: "Vastu",
-    status: "Hidden",
-    visibility: "Hidden",
-    description: "Hidden product reserved for a future funnel or order-bump offer.",
-    coverAsset: "vastu-shastra-essentials.webp",
-    pdfAsset: "vastu-shastra-essentials.pdf",
-    labels: [],
-    featured: false,
-    downloads: 12,
-    sales: 45,
-  },
-];
+const mapBadgeToAdminLabel = (badge?: string) => {
+  switch (badge) {
+    case "Bestseller":
+      return "Best Seller";
+    case "Popular":
+      return "Featured";
+    case "Seasonal":
+      return "New";
+    default:
+      return badge ?? null;
+  }
+};
+
+const initialProducts: EditableProduct[] = storefrontProducts.map((product, index) => {
+  const visibility: EditableProduct["visibility"] = index < 14 ? "Active" : index < 18 ? "Draft" : "Hidden";
+  const labels = [mapBadgeToAdminLabel(product.badge), index < 6 ? "Featured" : null].filter(Boolean) as string[];
+
+  return {
+    id: index + 1,
+    title: product.title,
+    slug: product.id,
+    price: product.price,
+    compareAtPrice: product.originalPrice ?? null,
+    category: product.category,
+    status: visibility,
+    visibility,
+    description: product.description,
+    coverAsset: `${product.id}-cover.webp`,
+    pdfAsset: `${product.id}.pdf`,
+    labels,
+    featured: index < 6,
+    downloads: Math.max(18, 420 - index * 17),
+    sales: Math.max(9, 160 - index * 6),
+  };
+});
 
 interface DiscountCode {
   id: number;

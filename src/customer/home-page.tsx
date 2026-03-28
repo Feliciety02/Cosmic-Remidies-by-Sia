@@ -297,7 +297,7 @@ const HomePage = ({ initialAuthMode, initialAuthError }: HomePageProps) => (
             Our most beloved spiritual guides, presented with the same tone and structure used across the page.
           </p>
         </div>
-        <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-4">
           {products.slice(0, 6).map((product) => (
             <ProductCard key={product.id} {...product} />
           ))}

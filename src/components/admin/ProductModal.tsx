@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { categories as storefrontCategories } from "@/data/products";
 
 export interface EditableProduct {
   id: number;
@@ -72,7 +73,7 @@ const getInitialFormState = (product?: EditableProduct | null): ProductFormState
 });
 
 const labelOptions = ["Featured", "Best Seller", "On Sale", "New"];
-const categories = ["Astrology", "Healing", "Meditation", "Numerology", "Vastu", "Bundles"];
+const categories = [...storefrontCategories.filter((category) => category !== "All"), "Bundles"];
 
 export const ProductModal = ({ open, onOpenChange, onSave, editProduct }: ProductModalProps) => {
   const [form, setForm] = useState(getInitialFormState(editProduct));

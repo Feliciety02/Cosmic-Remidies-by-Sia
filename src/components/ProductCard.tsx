@@ -7,7 +7,7 @@ import type { Product } from "@/data/products";
 type ProductCardProps = Pick<Product, "id" | "title" | "price" | "originalPrice" | "image" | "rating" | "badge">;
 
 const ProductCard = ({ id, title, price, originalPrice, image, rating, badge }: ProductCardProps) => (
-  <div className="mx-auto flex h-full w-full max-w-[18rem] flex-col overflow-hidden rounded-2xl border bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+  <div className="flex h-full w-full flex-col overflow-hidden rounded-2xl border bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
     <Link href={`/product/${id}`} className="group block">
       <div className="relative border-b bg-[linear-gradient(180deg,rgba(248,247,244,1)_0%,rgba(244,242,236,0.85)_100%)] px-5 py-6">
         {badge && (
