@@ -8,7 +8,9 @@ import Navbar from "@/components/Navbar";
 import ProductCard from "@/components/ProductCard";
 import TestimonialCard from "@/components/TestimonialCard";
 import TrustBar from "@/components/TrustBar";
+import type { HomepageContent } from "@/content/homepage-content";
 import { products, testimonials } from "@/data/products";
+import { getHomepageContent } from "@/lib/homepage-content-store";
 import { buildAuthHref, buildMetadata } from "@/lib/site";
 
 export const metadata: Metadata = buildMetadata({
@@ -33,7 +35,7 @@ const sectionDescription = "mx-auto mt-4 max-w-2xl text-base leading-7 text-ston
 const softPanel =
   "rounded-[1.75rem] border border-white/70 bg-white/72 shadow-[0_18px_60px_rgba(46,84,138,0.08)] backdrop-blur-sm";
 
-const Hero = () => (
+const Hero = ({ content }: { content: HomepageContent["hero"] }) => (
   <section className="relative overflow-hidden py-20 md:py-28 lg:py-36">
     <div
       className="absolute inset-0"
@@ -52,11 +54,11 @@ const Hero = () => (
       <div className="mx-auto max-w-3xl text-center">
         <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-sky-700/20 bg-white/70 px-5 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-sky-700 shadow-sm backdrop-blur-sm">
           <Star className="h-3.5 w-3.5 fill-sky-600 text-sky-600" />
-          Trusted by 5,000+ Seekers
+          {content.badge}
         </div>
 
         <h1 className="mb-6 font-display text-4xl font-bold leading-[1.18] tracking-tight text-stone-800 md:text-5xl lg:text-[3.6rem]">
-          Your sanctuary for{" "}
+          {content.headingIntro}{" "}
           <span
             className="relative inline-block pb-[0.12em]"
             style={{
@@ -66,45 +68,38 @@ const Hero = () => (
               backgroundClip: "text",
             }}
           >
-            cosmic healing
+            {content.headingHighlight}
           </span>{" "}
-          and inner wisdom
+          {content.headingEnding}
         </h1>
 
-        <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-stone-500">
-          Carefully crafted Vedic guides and spiritual remedies, written by Sia to help you reconnect with clarity,
-          balance, and purpose at any stage of life.
-        </p>
+        <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-stone-500">{content.description}</p>
 
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <Link
             href="/shop"
             className="group inline-flex min-w-[142px] items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#4d88d8_0%,#2c6dbe_100%)] px-9 py-4 text-[1.05rem] font-semibold text-white shadow-[0_14px_30px_rgba(48,95,170,0.28)] transition-all hover:-translate-y-0.5 hover:brightness-105 hover:shadow-[0_18px_36px_rgba(48,95,170,0.34)]"
           >
-            Shop Guides
+            {content.primaryCtaLabel}
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
           <Link
             href="/free-guide"
             className="inline-flex min-w-[142px] items-center justify-center rounded-full border-2 border-stone-300/80 bg-white/80 px-9 py-4 text-[1.05rem] font-semibold text-stone-700 shadow-[0_8px_22px_rgba(15,23,42,0.06)] backdrop-blur-sm transition-all hover:border-primary/35 hover:bg-white hover:text-primary"
           >
-            Free Guide
+            {content.secondaryCtaLabel}
           </Link>
         </div>
 
         <p className="mt-6 text-[1.02rem] text-stone-400">
-          Looking for your account?{" "}
+          {content.accountPrompt}{" "}
           <Link href={buildAuthHref("login")} className="font-semibold text-sky-700 underline-offset-2 hover:underline">
-            Sign in here
+            {content.accountLinkText}
           </Link>
         </p>
 
         <div className="mt-14 grid gap-4 text-left sm:grid-cols-3">
-          {[
-            { title: "Your private library", body: "Downloads, saved items, and purchase history all in one secure place." },
-            { title: "Simple to get started", body: "Create an account in seconds and browse with full confidence." },
-            { title: "Room to grow", body: "Your account grows with you: guides today, new tools and sessions tomorrow." },
-          ].map((card) => (
+          {content.featureCards.map((card) => (
             <div key={card.title} className={`${softPanel} px-6 py-5`}>
               <p className="mb-1 font-semibold text-stone-800">{card.title}</p>
               <p className="text-sm leading-relaxed text-stone-500">{card.body}</p>
@@ -116,27 +111,23 @@ const Hero = () => (
   </section>
 );
 
-const Benefits = () => {
+const Benefits = ({ content }: { content: HomepageContent["benefits"] }) => {
   const items = [
     {
       icon: BookOpen,
-      title: "Expert-Crafted Content",
-      desc: "Written by Sia with years of spiritual practice and deep Vedic knowledge.",
+      ...content.items[0],
     },
     {
       icon: Download,
-      title: "Instant Digital Delivery",
-      desc: "Receive your guide immediately after purchase with no waiting and no shipping.",
+      ...content.items[1],
     },
     {
       icon: Shield,
-      title: "30-Day Guarantee",
-      desc: "Not satisfied? Receive a full refund within 30 days, no questions asked.",
+      ...content.items[2],
     },
     {
       icon: Sparkles,
-      title: "Practical & Actionable",
-      desc: "Step-by-step instructions you can begin using the same day you receive them.",
+      ...content.items[3],
     },
   ];
 
@@ -144,11 +135,9 @@ const Benefits = () => {
     <section className="bg-[linear-gradient(180deg,#fbfcfe_0%,#f3f7fb_100%)] py-16 md:py-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className={sectionHeading}>
-          <p className={sectionEyebrow}>Why Choose Us</p>
-          <h2 className={sectionTitle}>Why Thousands Trust Our Guides</h2>
-          <p className={sectionDescription}>
-            Every guide is built to feel grounded, usable, and supportive from the moment it reaches your inbox.
-          </p>
+          <p className={sectionEyebrow}>{content.eyebrow}</p>
+          <h2 className={sectionTitle}>{content.title}</h2>
+          <p className={sectionDescription}>{content.description}</p>
         </div>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {items.map((item) => (
@@ -169,25 +158,7 @@ const Benefits = () => {
   );
 };
 
-const HowItWorks = () => {
-  const steps = [
-    {
-      num: "01",
-      title: "Create Your Account",
-      desc: "Start with a customer profile so your saved items and future downloads live in one secure place.",
-    },
-    {
-      num: "02",
-      title: "Choose Your Guide",
-      desc: "Explore the full collection once signed in and select the wisdom that calls to you.",
-    },
-    {
-      num: "03",
-      title: "Return Anytime",
-      desc: "Revisit your library, access saved guides, and explore new tools whenever you need them.",
-    },
-  ];
-
+const HowItWorks = ({ content }: { content: HomepageContent["howItWorks"] }) => {
   return (
     <section
       className="relative overflow-hidden py-16 md:py-24"
@@ -197,15 +168,13 @@ const HowItWorks = () => {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className={sectionHeading}>
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.32em] text-sky-700">Simple Process</p>
-          <h2 className={sectionTitle}>How It Works</h2>
-          <p className={sectionDescription}>
-            The storefront now follows the same guided rhythm as the product itself: simple entry, clear choice, easy return.
-          </p>
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.32em] text-sky-700">{content.eyebrow}</p>
+          <h2 className={sectionTitle}>{content.title}</h2>
+          <p className={sectionDescription}>{content.description}</p>
         </div>
         <div className="relative mx-auto grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-3">
           <div className="pointer-events-none absolute left-1/6 right-1/6 top-10 hidden h-px border-t border-dashed border-sky-300 md:block" />
-          {steps.map((step, i) => (
+          {content.steps.map((step, i) => (
             <div key={step.num} className={`${softPanel} relative px-6 py-8 text-center`}>
               <div
                 className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full border-2 border-sky-200 bg-white font-display text-2xl font-bold shadow-sm"
@@ -223,23 +192,21 @@ const HowItWorks = () => {
   );
 };
 
-const EmailCapture = () => (
+const EmailCapture = ({ content }: { content: HomepageContent["leadCapture"] }) => (
   <section className={sectionShell}>
     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
       <div className="relative mx-auto max-w-3xl overflow-hidden rounded-[2rem] border border-sky-200/40 bg-[linear-gradient(145deg,rgba(252,253,255,0.96)_0%,rgba(243,247,251,0.94)_100%)] p-10 text-center shadow-[0_24px_80px_rgba(72,98,128,0.08)] md:p-14">
         <div className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full border-4 border-sky-200/30" />
         <div className="pointer-events-none absolute -bottom-12 -left-12 h-48 w-48 rounded-full border-4 border-blue-200/20" />
 
-        <p className={sectionEyebrow}>Free Gift</p>
-        <h2 className="mb-3 font-display text-2xl font-bold text-stone-800 md:text-3xl">Receive a Free Cosmic Healing Starter Guide</h2>
-        <p className="mx-auto mb-7 max-w-xl text-base leading-relaxed text-stone-500">
-          Most first-time visitors are not ready to buy immediately. Capture the free starter guide first, then continue the journey by email.
-        </p>
+        <p className={sectionEyebrow}>{content.eyebrow}</p>
+        <h2 className="mb-3 font-display text-2xl font-bold text-stone-800 md:text-3xl">{content.title}</h2>
+        <p className="mx-auto mb-7 max-w-xl text-base leading-relaxed text-stone-500">{content.description}</p>
         <div className="mx-auto max-w-2xl">
           <LeadCaptureForm
             source="homepage-capture"
             layout="inline"
-            submitLabel="Get the Free Guide"
+            submitLabel={content.ctaLabel}
             successMessage="Starter guide request received."
           />
         </div>
@@ -248,7 +215,7 @@ const EmailCapture = () => (
   </section>
 );
 
-const FinalCta = () => (
+const FinalCta = ({ content }: { content: HomepageContent["finalCta"] }) => (
   <section
     className="relative overflow-hidden py-20 md:py-24"
     style={{ background: "linear-gradient(180deg, #fbfcfe 0%, #f2f6fb 100%)" }}
@@ -258,78 +225,76 @@ const FinalCta = () => (
       style={{ background: "radial-gradient(ellipse 60% 80% at 50% 50%, rgba(123,185,227,0.08) 0%, transparent 70%)" }}
     />
     <div className="container relative mx-auto px-4 text-center sm:px-6 lg:px-8">
-      <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-sky-700">Begin Your Journey</p>
-      <h2 className="mb-5 font-display text-3xl font-bold text-stone-800 md:text-4xl">Ready to Transform Your Spiritual Path?</h2>
-      <p className="mx-auto mb-10 max-w-lg text-lg leading-relaxed text-stone-500">
-        Browse our complete collection of premium guides and begin your healing journey today. Instant delivery and a 30-day satisfaction guarantee.
-      </p>
+      <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-sky-700">{content.eyebrow}</p>
+      <h2 className="mb-5 font-display text-3xl font-bold text-stone-800 md:text-4xl">{content.title}</h2>
+      <p className="mx-auto mb-10 max-w-lg text-lg leading-relaxed text-stone-500">{content.description}</p>
       <Link
         href="/shop"
         className="group inline-flex items-center gap-2 rounded-full bg-[linear-gradient(135deg,#4d88d8_0%,#2c6dbe_100%)] px-10 py-4 text-base font-bold text-white shadow-lg shadow-blue-950/20 transition-all hover:-translate-y-0.5 hover:brightness-105 hover:shadow-xl"
       >
-        Shop All Guides
+        {content.ctaLabel}
         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
       </Link>
     </div>
   </section>
 );
 
-const HomePage = ({ initialAuthMode, initialAuthError }: HomePageProps) => (
-  <div className="min-h-screen bg-transparent">
-    <Navbar />
-    <Hero />
-    <HomeAuthModal initialMode={initialAuthMode} initialError={initialAuthError} />
-    <TrustBar />
+const HomePage = async ({ initialAuthMode, initialAuthError }: HomePageProps) => {
+  const content = await getHomepageContent();
 
-    <section className={sectionShell}>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className={sectionHeading}>
-          <p className={sectionEyebrow}>Most Loved</p>
-          <h2 className={`${sectionTitle} mb-3`}>Featured Guides</h2>
-          <p className="mx-auto max-w-md text-base leading-7 text-stone-500">
-            Our most beloved spiritual guides, presented with the same tone and structure used across the page.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-4">
-          {products.slice(0, 6).map((product) => (
-            <ProductCard key={product.id} {...product} />
-          ))}
-        </div>
-        <div className="mt-12 text-center">
-          <Link
-            href="/shop"
-            className="inline-flex items-center gap-2 rounded-full border-2 border-stone-300 bg-white px-8 py-3.5 text-base font-semibold text-stone-700 shadow-sm transition-all hover:border-sky-400 hover:text-sky-700"
-          >
-            View All Guides <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-      </div>
-    </section>
+  return (
+    <div className="min-h-screen bg-transparent">
+      <Navbar />
+      <Hero content={content.hero} />
+      <HomeAuthModal initialMode={initialAuthMode} initialError={initialAuthError} />
+      <TrustBar />
 
-    <Benefits />
-    <HowItWorks />
-
-    <section className="bg-[linear-gradient(180deg,#f6f9fc_0%,#fbfcfe_100%)] py-16 md:py-24">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className={sectionHeading}>
-          <p className={sectionEyebrow}>Reader Stories</p>
-          <h2 className={sectionTitle}>What Our Readers Say</h2>
-          <p className={sectionDescription}>
-            Social proof now carries the same spacing, typography, and surface treatment as the rest of the storefront.
-          </p>
+      <section className={sectionShell}>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className={sectionHeading}>
+            <p className={sectionEyebrow}>{content.featured.eyebrow}</p>
+            <h2 className={`${sectionTitle} mb-3`}>{content.featured.title}</h2>
+            <p className="mx-auto max-w-md text-base leading-7 text-stone-500">{content.featured.description}</p>
+          </div>
+          <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-4">
+            {products.slice(0, 6).map((product) => (
+              <ProductCard key={product.id} {...product} />
+            ))}
+          </div>
+          <div className="mt-12 text-center">
+            <Link
+              href="/shop"
+              className="inline-flex items-center gap-2 rounded-full border-2 border-stone-300 bg-white px-8 py-3.5 text-base font-semibold text-stone-700 shadow-sm transition-all hover:border-sky-400 hover:text-sky-700"
+            >
+              {content.featured.viewAllLabel} <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {testimonials.slice(0, 6).map((testimonial) => (
-            <TestimonialCard key={testimonial.name} {...testimonial} />
-          ))}
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <EmailCapture />
-    <FinalCta />
-    <Footer />
-  </div>
-);
+      <Benefits content={content.benefits} />
+      <HowItWorks content={content.howItWorks} />
+
+      <section className="bg-[linear-gradient(180deg,#f6f9fc_0%,#fbfcfe_100%)] py-16 md:py-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className={sectionHeading}>
+            <p className={sectionEyebrow}>{content.stories.eyebrow}</p>
+            <h2 className={sectionTitle}>{content.stories.title}</h2>
+            <p className={sectionDescription}>{content.stories.description}</p>
+          </div>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {testimonials.slice(0, 6).map((testimonial) => (
+              <TestimonialCard key={testimonial.name} {...testimonial} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <EmailCapture content={content.leadCapture} />
+      <FinalCta content={content.finalCta} />
+      <Footer />
+    </div>
+  );
+};
 
 export default HomePage;
