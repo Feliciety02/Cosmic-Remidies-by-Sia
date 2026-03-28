@@ -28,7 +28,7 @@ const AccountDashboard = () => {
       <div className="rounded-3xl border bg-card p-8 shadow-sm">
         <h2 className="font-display text-2xl font-bold">Sign in required</h2>
         <p className="mt-3 text-sm text-muted-foreground">
-          Your local customer session is missing. Return to the homepage to sign in again.
+          Your secure customer session is missing. Return to the homepage to sign in again.
         </p>
         <Button asChild className="mt-6">
           <Link href="/">Go to Homepage</Link>
@@ -46,8 +46,8 @@ const AccountDashboard = () => {
         </span>
         <h1 className="mt-5 font-display text-3xl font-bold">Hello, {user.name}</h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          This dashboard now tracks your signed-in customer session. Order history and digital library features can plug
-          into this account area once checkout/customer data is connected to a backend.
+          This dashboard is now backed by a signed server session. Order history and digital library features can plug
+          into this account area once checkout/customer data is connected to a backend database.
         </p>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -90,7 +90,7 @@ const AccountDashboard = () => {
             type="button"
             variant="ghost"
             onClick={() => {
-              logout();
+              await logout();
               router.push("/");
               router.refresh();
             }}

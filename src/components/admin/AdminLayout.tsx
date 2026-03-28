@@ -122,8 +122,8 @@ export const AdminLayout = ({ title, subtitle, children }: AdminLayoutProps) => 
                 type="button"
                 variant="ghost"
                 className="gap-2"
-                onClick={() => {
-                  logout();
+                onClick={async () => {
+                  await logout();
                   router.push("/");
                   router.refresh();
                 }}

@@ -1,22 +1,9 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, type ReactNode } from "react";
+import { getSession, signIn, signOut, useSession } from "next-auth/react";
 import { toast } from "sonner";
-import {
-  ADMIN_PASSWORD,
-  ADMIN_USER,
-  AUTH_COOKIE_MAX_AGE,
-  AUTH_COOKIE_NAME,
-  AUTH_SESSION_STORAGE_KEY,
-  AUTH_USERS_STORAGE_KEY,
-  isAdminEmail,
-  normalizeEmail,
-  toAuthUser,
-  type AuthUser,
-  type StoredSession,
-  type StoredUser,
-  type UserRole,
-} from "@/lib/auth";
+import type { AuthUser } from "@/lib/auth";
 
 interface LoginInput {
   email: string;
@@ -31,181 +18,79 @@ interface AuthContextType {
   user: AuthUser | null;
   isHydrated: boolean;
   login: (input: LoginInput) => Promise<AuthUser | null>;
+  loginWithGoogle: (callbackUrl?: string) => Promise<void>;
   createAccount: (input: CreateAccountInput) => Promise<AuthUser | null>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const parseStoredValue = <T,>(value: string | null): T | null => {
-  if (!value) {
+const mapSessionUser = (sessionUser: {
+  name?: string | null;
+  email?: string | null;
+  createdAt?: string;
+  role?: "customer" | "admin";
+}): AuthUser | null => {
+  if (!sessionUser.email || !sessionUser.createdAt || !sessionUser.role) {
     return null;
   }
 
-  try {
-    return JSON.parse(value) as T;
-  } catch {
-    return null;
-  }
-};
-
-const isStoredUser = (value: unknown): value is StoredUser => {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-
-  const candidate = value as Record<string, unknown>;
-
-  return (
-    typeof candidate.name === "string" &&
-    typeof candidate.email === "string" &&
-    typeof candidate.passwordHash === "string" &&
-    typeof candidate.createdAt === "string"
-  );
-};
-
-const hashPassword = async (password: string) => {
-  const digest = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(password));
-  return Array.from(new Uint8Array(digest), (value) => value.toString(16).padStart(2, "0")).join("");
-};
-
-const setSessionCookie = (email: string) => {
-  document.cookie =
-    `${AUTH_COOKIE_NAME}=${encodeURIComponent(email)}; path=/; max-age=${AUTH_COOKIE_MAX_AGE}; SameSite=Lax`;
-};
-
-const clearSessionCookie = () => {
-  document.cookie = `${AUTH_COOKIE_NAME}=; path=/; max-age=0; SameSite=Lax`;
+  return {
+    name: sessionUser.name ?? "Account",
+    email: sessionUser.email,
+    createdAt: sessionUser.createdAt,
+    role: sessionUser.role,
+  };
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [users, setUsers] = useState<StoredUser[]>([]);
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  useEffect(() => {
-    try {
-      const storedUsers = parseStoredValue<unknown[]>(localStorage.getItem(AUTH_USERS_STORAGE_KEY)) ?? [];
-      const validUsers = storedUsers.filter(isStoredUser).map((storedUser) => ({
-        ...storedUser,
-        email: normalizeEmail(storedUser.email),
-      }));
-      const storedSession = parseStoredValue<StoredSession>(localStorage.getItem(AUTH_SESSION_STORAGE_KEY));
-      const sessionEmail = storedSession?.email ? normalizeEmail(storedSession.email) : null;
-      const sessionRole =
-        storedSession?.role ?? (sessionEmail && isAdminEmail(sessionEmail) ? "admin" : sessionEmail ? "customer" : null);
-      const matchingUser = sessionEmail ? validUsers.find((storedUser) => storedUser.email === sessionEmail) : null;
-
-      setUsers(validUsers);
-
-      if (sessionEmail && sessionRole === "admin" && isAdminEmail(sessionEmail)) {
-        setUser(ADMIN_USER);
-        setSessionCookie(ADMIN_USER.email);
-      } else if (matchingUser) {
-        setUser(toAuthUser(matchingUser));
-        setSessionCookie(matchingUser.email);
-      } else {
-        localStorage.removeItem(AUTH_SESSION_STORAGE_KEY);
-        clearSessionCookie();
-      }
-    } catch {
-      setUsers([]);
-      setUser(null);
-      clearSessionCookie();
-    } finally {
-      setIsHydrated(true);
-    }
-  }, []);
-
-  const persistUsers = (nextUsers: StoredUser[]) => {
-    setUsers(nextUsers);
-    localStorage.setItem(AUTH_USERS_STORAGE_KEY, JSON.stringify(nextUsers));
-  };
-
-  const persistSession = (email: string | null, role: UserRole | null = null) => {
-    if (email) {
-      localStorage.setItem(AUTH_SESSION_STORAGE_KEY, JSON.stringify({ email, role }));
-      setSessionCookie(email);
-      return;
-    }
-
-    localStorage.removeItem(AUTH_SESSION_STORAGE_KEY);
-    clearSessionCookie();
-  };
+  const { data: session, status } = useSession();
+  const user = mapSessionUser(session?.user ?? {});
+  const isHydrated = status !== "loading";
 
   const login = async ({ email, password }: LoginInput) => {
-    const normalizedEmail = normalizeEmail(email);
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
 
-    if (isAdminEmail(normalizedEmail)) {
-      if (password !== ADMIN_PASSWORD) {
-        toast.error("The password you entered is incorrect.");
-        return null;
-      }
-
-      setUser(ADMIN_USER);
-      persistSession(ADMIN_USER.email, "admin");
-      toast.success("Admin access granted.");
-      return ADMIN_USER;
-    }
-
-    const matchingUser = users.find((storedUser) => storedUser.email === normalizedEmail);
-
-    if (!matchingUser) {
-      toast.error("No customer account was found for that email.");
+    if (!result || result.error) {
+      toast.error("The admin credentials you entered are incorrect.");
       return null;
     }
 
-    const passwordHash = await hashPassword(password);
+    const nextSession = await getSession();
+    const nextUser = mapSessionUser(nextSession?.user ?? {});
 
-    if (matchingUser.passwordHash !== passwordHash) {
-      toast.error("The password you entered is incorrect.");
+    if (!nextUser) {
+      toast.error("Sign-in succeeded, but the session could not be loaded.");
       return null;
     }
 
-    const authUser = toAuthUser(matchingUser);
-
-    setUser(authUser);
-    persistSession(matchingUser.email, "customer");
-    toast.success(`Welcome back, ${matchingUser.name}.`);
-    return authUser;
+    toast.success(nextUser.role === "admin" ? "Admin access granted." : `Welcome back, ${nextUser.name}.`);
+    return nextUser;
   };
 
-  const createAccount = async ({ name, email, password }: CreateAccountInput) => {
-    const normalizedEmail = normalizeEmail(email);
-
-    if (isAdminEmail(normalizedEmail)) {
-      toast.error("That email is reserved for admin access.");
-      return null;
-    }
-
-    if (users.some((storedUser) => storedUser.email === normalizedEmail)) {
-      toast.error("An account with that email already exists.");
-      return null;
-    }
-
-    const nextUser: StoredUser = {
-      name: name.trim(),
-      email: normalizedEmail,
-      passwordHash: await hashPassword(password),
-      createdAt: new Date().toISOString(),
-    };
-    const nextUsers = [...users, nextUser];
-    const authUser = toAuthUser(nextUser);
-
-    persistUsers(nextUsers);
-    setUser(authUser);
-    persistSession(nextUser.email, "customer");
-    toast.success("Your customer account is ready.");
-    return authUser;
+  const loginWithGoogle = async (callbackUrl = "/account") => {
+    await signIn("google", { callbackUrl });
   };
 
-  const logout = () => {
-    setUser(null);
-    persistSession(null);
+  const createAccount = async (_input: CreateAccountInput) => {
+    toast.error("Email/password signup is disabled until a database-backed customer auth flow is added.");
+    return null;
+  };
+
+  const logout = async () => {
+    await signOut({ redirect: false });
     toast.success("You have been signed out.");
   };
 
-  return <AuthContext.Provider value={{ user, isHydrated, login, createAccount, logout }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, isHydrated, login, loginWithGoogle, createAccount, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {

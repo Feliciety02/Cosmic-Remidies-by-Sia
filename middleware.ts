@@ -1,28 +1,28 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { ADMIN_EMAIL, AUTH_COOKIE_NAME, parseSessionEmail } from "@/lib/auth";
+import { getToken } from "next-auth/jwt";
 
 export const config = {
   matcher: ["/admin/:path*", "/account/:path*"],
 };
 
-export const middleware = (request: NextRequest) => {
-  const sessionEmail = parseSessionEmail(request.cookies.get(AUTH_COOKIE_NAME)?.value);
+export const middleware = async (request: NextRequest) => {
+  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
   const { pathname } = request.nextUrl;
 
   if (pathname.startsWith("/admin")) {
-    if (sessionEmail !== ADMIN_EMAIL) {
-      return NextResponse.redirect(new URL("/", request.url));
+    if (token?.role !== "admin") {
+      return NextResponse.redirect(new URL("/?auth=login", request.url));
     }
 
     return NextResponse.next();
   }
 
-  if (!sessionEmail) {
-    return NextResponse.redirect(new URL("/", request.url));
+  if (!token) {
+    return NextResponse.redirect(new URL("/?auth=login", request.url));
   }
 
-  if (sessionEmail === ADMIN_EMAIL) {
+  if (token.role === "admin") {
     return NextResponse.redirect(new URL("/admin", request.url));
   }
 

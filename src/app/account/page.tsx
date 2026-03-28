@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import AccountDashboard from "@/components/AccountDashboard";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
-import { ADMIN_EMAIL, AUTH_COOKIE_NAME, parseSessionEmail } from "@/lib/auth";
+import { getAuthSession } from "@/lib/auth";
 import { buildMetadata } from "@/lib/site";
 
 export const metadata: Metadata = buildMetadata({
@@ -14,14 +13,14 @@ export const metadata: Metadata = buildMetadata({
   noIndex: true,
 });
 
-const AccountPage = () => {
-  const sessionEmail = parseSessionEmail(cookies().get(AUTH_COOKIE_NAME)?.value);
+const AccountPage = async () => {
+  const session = await getAuthSession();
 
-  if (!sessionEmail) {
-    redirect("/");
+  if (!session?.user) {
+    redirect("/?auth=login");
   }
 
-  if (sessionEmail === ADMIN_EMAIL) {
+  if (session.user.role === "admin") {
     redirect("/admin");
   }
 
