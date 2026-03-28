@@ -9,15 +9,16 @@ type AuthMode = "login" | "create";
 
 interface HomeAuthModalProps {
   initialMode?: AuthMode;
+  initialError?: string;
 }
 
-const HomeAuthModal = ({ initialMode }: HomeAuthModalProps) => {
+const HomeAuthModal = ({ initialMode, initialError }: HomeAuthModalProps) => {
   const router = useRouter();
-  const [open, setOpen] = useState(Boolean(initialMode));
+  const [open, setOpen] = useState(Boolean(initialMode || initialError));
 
   useEffect(() => {
-    setOpen(Boolean(initialMode));
-  }, [initialMode]);
+    setOpen(Boolean(initialMode || initialError));
+  }, [initialMode, initialError]);
 
   const handleOpenChange = (nextOpen: boolean) => {
     setOpen(nextOpen);
@@ -30,7 +31,7 @@ const HomeAuthModal = ({ initialMode }: HomeAuthModalProps) => {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-md border-0 bg-transparent p-0 shadow-none [&>button]:right-5 [&>button]:top-5 [&>button]:rounded-full [&>button]:bg-transparent [&>button]:p-1 [&>button]:text-slate-400 [&>button]:opacity-100 [&>button]:hover:bg-transparent [&>button]:hover:text-slate-600">
-        <AuthLanding initialMode={initialMode ?? "login"} />
+        <AuthLanding initialMode={initialMode ?? "login"} initialError={initialError} />
       </DialogContent>
     </Dialog>
   );

@@ -21,6 +21,7 @@ type AuthMode = "login" | "create";
 
 interface HomePageProps {
   initialAuthMode?: AuthMode;
+  initialAuthError?: string;
 }
 
 const sectionShell = "py-16 md:py-24";
@@ -280,11 +281,11 @@ const FinalCta = () => (
   </section>
 );
 
-const HomePage = ({ initialAuthMode }: HomePageProps) => (
+const HomePage = ({ initialAuthMode, initialAuthError }: HomePageProps) => (
   <div className="min-h-screen bg-transparent">
     <Navbar />
     <Hero />
-    <HomeAuthModal initialMode={initialAuthMode} />
+    <HomeAuthModal initialMode={initialAuthMode} initialError={initialAuthError} />
     <TrustBar />
 
     <section className={sectionShell}>

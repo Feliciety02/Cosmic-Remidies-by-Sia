@@ -16,6 +16,7 @@ type AuthMode = "login" | "create";
 
 interface AuthLandingProps {
   initialMode?: AuthMode;
+  initialError?: string;
 }
 
 const modeContent: Record<AuthMode, { title: string; description: string }> = {
@@ -32,7 +33,16 @@ const modeContent: Record<AuthMode, { title: string; description: string }> = {
 const authCardClassName =
   "scroll-mt-28 rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_28px_80px_rgba(15,23,42,0.14)] sm:p-8";
 
-const AuthLanding = ({ initialMode = "login" }: AuthLandingProps) => {
+const authErrorMessages: Record<string, string> = {
+  AccessDenied: "Access was denied. If you cancelled Google sign-in or used an unverified Google account, try again.",
+  OAuthAccountNotLinked: "This email is already linked to a different sign-in method.",
+  OAuthCallback: "Google sign-in could not be completed. Check the OAuth redirect URI and client credentials.",
+  OAuthSignin: "Google sign-in could not be started. Check the OAuth client configuration.",
+  Configuration: "Authentication is not configured correctly. Check your auth environment variables.",
+  Default: "Authentication could not be completed. Please try again.",
+};
+
+const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) => {
   const router = useRouter();
   const { user, isHydrated, login, loginWithGoogle, logout } = useAuth();
   const [mode, setMode] = useState<AuthMode>(initialMode);
@@ -46,9 +56,9 @@ const AuthLanding = ({ initialMode = "login" }: AuthLandingProps) => {
   useEffect(() => {
     if (initialMode === "login" || initialMode === "create") {
       setMode(initialMode);
-      setError(null);
+      setError(initialError ? authErrorMessages[initialError] ?? authErrorMessages.Default : null);
     }
-  }, [initialMode]);
+  }, [initialError, initialMode]);
 
   useEffect(() => {
     let active = true;
