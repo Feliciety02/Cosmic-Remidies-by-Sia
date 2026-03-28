@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { CheckCircle, Shield, Star, Zap } from "lucide-react";
-import LeadMagnetForm from "@/components/LeadMagnetForm";
+import LeadCaptureForm from "@/components/LeadCaptureForm";
 import { buildMetadata } from "@/lib/site";
 
 export const metadata: Metadata = buildMetadata({
@@ -36,7 +36,13 @@ const FreeGuidePage = () => (
         </ul>
       </div>
 
-      <LeadMagnetForm />
+      <LeadCaptureForm
+        source="lead-magnet-page"
+        includeFirstName
+        requireConsent
+        submitLabel="Send Me the Free Guide"
+        successMessage="Request received. We'll send the starter guide to your inbox."
+      />
 
       <p className="mb-6 text-center text-xs uppercase tracking-[0.24em] text-muted-foreground">
         Joined by 2,000+ readers across the USA, UK, Canada, and Australia

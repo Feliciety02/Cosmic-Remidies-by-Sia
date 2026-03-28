@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, BookOpen, Download, Shield, Sparkles, Star } from "lucide-react";
 import Footer from "@/components/Footer";
 import HomeAuthModal from "@/components/HomeAuthModal";
+import LeadCaptureForm from "@/components/LeadCaptureForm";
 import Navbar from "@/components/Navbar";
 import ProductCard from "@/components/ProductCard";
 import TestimonialCard from "@/components/TestimonialCard";
@@ -234,22 +235,14 @@ const EmailCapture = () => (
         <p className="mx-auto mb-7 max-w-xl text-base leading-relaxed text-stone-500">
           Most first-time visitors are not ready to buy immediately. Capture the free starter guide first, then continue the journey by email.
         </p>
-        <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <Link
-            href="/free-guide"
-            className="inline-flex items-center gap-2 rounded-full bg-[linear-gradient(135deg,#4d88d8_0%,#2c6dbe_100%)] px-8 py-4 text-base font-semibold text-white shadow-lg shadow-blue-950/20 transition-all hover:-translate-y-0.5 hover:brightness-105"
-          >
-            Get the Free Guide
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-          <Link
-            href="/privacy-policy"
-            className="text-sm font-medium text-stone-500 underline underline-offset-4 transition-colors hover:text-stone-700"
-          >
-            Privacy Policy
-          </Link>
+        <div className="mx-auto max-w-2xl">
+          <LeadCaptureForm
+            source="homepage-capture"
+            layout="inline"
+            submitLabel="Get the Free Guide"
+            successMessage="Starter guide request received."
+          />
         </div>
-        <p className="mt-4 text-xs text-stone-400">No spam. Unsubscribe any time. Privacy-first signup flow.</p>
       </div>
     </div>
   </section>
