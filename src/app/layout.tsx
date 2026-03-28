@@ -14,7 +14,8 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   applicationName: siteConfig.name,
   icons: {
-    icon: "/favicon.ico",
+    icon: [{ url: "/circularlogo.svg", type: "image/svg+xml" }],
+    shortcut: "/circularlogo.svg",
   },
   openGraph: {
     locale: "en_US",

@@ -1,12 +1,15 @@
 "use client";
 
-import type { FormEvent } from "react";
+import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const EmailCaptureForm = () => {
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const form = event.currentTarget;
@@ -18,17 +21,50 @@ const EmailCaptureForm = () => {
       return;
     }
 
-    toast.success("Starter guide request received.");
-    form.reset();
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("/api/leads", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          source: "homepage-strip",
+          email,
+          consent: true,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Lead capture failed");
+      }
+
+      toast.success("Starter guide request received.");
+      form.reset();
+    } catch {
+      toast.error("We couldn't save your request right now. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <form className="flex flex-col gap-3 sm:flex-row" onSubmit={handleSubmit}>
-      <Input name="email" placeholder="Enter your email" type="email" className="flex-1" />
-      <Button type="submit" className="shrink-0">
-        Get Free Guide
-      </Button>
-    </form>
+    <div className="space-y-3">
+      <form className="flex flex-col gap-3 sm:flex-row" onSubmit={handleSubmit}>
+        <Input name="email" placeholder="Enter your email" type="email" className="flex-1" autoComplete="email" required />
+        <Button type="submit" className="shrink-0" disabled={isSubmitting}>
+          {isSubmitting ? "Sending..." : "Get Free Guide"}
+        </Button>
+      </form>
+      <p className="text-xs text-stone-400">
+        By requesting the guide, you agree to receive relevant emails. Review our{" "}
+        <Link href="/privacy-policy" className="underline underline-offset-2 hover:text-stone-600">
+          Privacy Policy
+        </Link>
+        .
+      </p>
+    </div>
   );
 };
 

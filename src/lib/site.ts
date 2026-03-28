@@ -4,7 +4,7 @@ export const siteConfig = {
   name: "Cosmic Remedies by Sia",
   description:
     "Premium spiritual guides, Vedic remedies, and cosmic healing resources delivered instantly to your inbox.",
-  supportEmail: "cosmicremediesbysia@gmail.com",
+  supportEmail: "support@cosmicremediesbysia.com",
   location: "India",
 };
 
@@ -13,8 +13,11 @@ export const primaryNavLinks = [
   { label: "Shop", href: "/shop" },
   { label: "About", href: "/about" },
   { label: "FAQ", href: "/faq" },
-  { label: "Contact", href: "/contact" },
 ];
+
+export const authPanelId = "auth-panel";
+
+export const buildAuthHref = (mode: "login" | "create" = "login") => `/?auth=${mode}#${authPanelId}`;
 
 const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 

@@ -7,49 +7,49 @@
     --font-dm-sans: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     --font-lora: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
 
-    --background: 40 14% 96%;
-    --foreground: 220 20% 18%;
+    --background: 38 38% 97%;
+    --foreground: 215 28% 17%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 20% 18%;
+    --card: 36 30% 98%;
+    --card-foreground: 215 28% 17%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 18%;
+    --popover: 36 30% 98%;
+    --popover-foreground: 215 28% 17%;
 
-    --primary: 200 55% 32%;
+    --primary: 204 52% 42%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 40 12% 91%;
-    --secondary-foreground: 220 20% 18%;
+    --secondary: 36 24% 93%;
+    --secondary-foreground: 215 28% 17%;
 
-    --muted: 40 10% 92%;
-    --muted-foreground: 220 10% 46%;
+    --muted: 36 20% 93%;
+    --muted-foreground: 214 16% 42%;
 
-    --accent: 38 60% 50%;
-    --accent-foreground: 220 20% 18%;
+    --accent: 214 62% 56%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 40 12% 87%;
-    --input: 40 12% 87%;
-    --ring: 200 55% 32%;
+    --border: 34 18% 86%;
+    --input: 34 18% 86%;
+    --ring: 214 62% 56%;
 
-    --radius: 0.5rem;
+    --radius: 0.8rem;
 
-    --gold: 38 60% 50%;
-    --gold-light: 38 50% 72%;
-    --teal-light: 200 30% 93%;
-    --teal-dark: 200 60% 24%;
+    --gold: 214 62% 56%;
+    --gold-light: 205 62% 76%;
+    --teal-light: 201 46% 91%;
+    --teal-dark: 208 57% 30%;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 200 55% 32%;
+    --sidebar-background: 36 24% 95%;
+    --sidebar-foreground: 215 28% 17%;
+    --sidebar-primary: 204 52% 42%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 40 10% 92%;
-    --sidebar-accent-foreground: 220 20% 18%;
-    --sidebar-border: 40 12% 87%;
-    --sidebar-ring: 200 55% 32%;
+    --sidebar-accent: 36 24% 93%;
+    --sidebar-accent-foreground: 215 28% 17%;
+    --sidebar-border: 34 18% 86%;
+    --sidebar-ring: 214 62% 56%;
   }
 }
 
@@ -66,6 +66,10 @@
     @apply bg-background text-foreground font-sans antialiased;
     font-size: 16px;
     line-height: 1.7;
+    background-image:
+      radial-gradient(circle at top, rgba(123, 185, 227, 0.12), transparent 34%),
+      radial-gradient(circle at 18% 22%, rgba(205, 182, 145, 0.12), transparent 26%),
+      linear-gradient(180deg, rgba(252, 249, 244, 0.98), rgba(247, 242, 234, 0.99));
   }
 
   h1,
@@ -82,20 +86,20 @@
 @layer utilities {
   .text-gradient-teal {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(200 55% 32%), hsl(200 60% 24%));
+    background-image: linear-gradient(135deg, hsl(204 52% 42%), hsl(208 57% 30%));
   }
 
   .text-gradient-gold {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(38 60% 50%), hsl(38 50% 72%));
+    background-image: linear-gradient(135deg, hsl(214 62% 56%), hsl(205 62% 76%));
   }
 
   .bg-gradient-teal {
-    background: linear-gradient(135deg, hsl(200 55% 32%), hsl(200 60% 24%));
+    background: linear-gradient(135deg, hsl(204 52% 42%), hsl(208 57% 30%));
   }
 
   .bg-gradient-gold {
-    background: linear-gradient(135deg, hsl(38 60% 50%), hsl(38 45% 42%));
+    background: linear-gradient(135deg, hsl(214 62% 56%), hsl(208 57% 34%));
   }
 
   .gradient-primary {

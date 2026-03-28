@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import logo from "@/assets/logo.svg";
-import { primaryNavLinks, siteConfig } from "@/lib/site";
+import { siteConfig } from "@/lib/site";
 
 const Footer = () => (
   <footer className="mt-20 bg-foreground text-primary-foreground">
@@ -9,32 +9,39 @@ const Footer = () => (
       <div>
         <Image src={logo} alt="Cosmic Remedies by Sia" className="mb-4 h-10 w-auto brightness-200" />
         <p className="text-sm text-primary-foreground/60">
-          Premium spiritual guides and cosmic remedies delivered instantly to your inbox.
+          Premium spiritual guides & cosmic remedies delivered instantly to your inbox.
         </p>
       </div>
       <div>
         <h4 className="mb-3 font-display text-sm font-semibold">Quick Links</h4>
         <div className="flex flex-col gap-2">
-          {primaryNavLinks
-            .filter((link) => link.href !== "/")
-            .map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-sm text-primary-foreground/60 transition-colors hover:text-primary-foreground"
-              >
-                {link.label}
-              </Link>
-            ))}
+          {[
+            { label: "Shop", href: "/shop" },
+            { label: "About", href: "/about" },
+            { label: "FAQ", href: "/faq" },
+            { label: "Contact", href: "/contact" },
+            { label: "Privacy Policy", href: "/privacy-policy" },
+            { label: "Terms of Service", href: "/terms-of-service" },
+            { label: "Refund Policy", href: "/refund-policy" },
+            { label: "Do Not Sell / Share", href: "/do-not-sell" },
+            { label: "Cookie Settings", href: "/cookie-settings" },
+          ].map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="text-sm text-primary-foreground/60 transition-colors hover:text-primary-foreground"
+            >
+              {link.label}
+            </Link>
+          ))}
         </div>
       </div>
       <div>
         <h4 className="mb-3 font-display text-sm font-semibold">Support</h4>
         <div className="flex flex-col gap-2 text-sm text-primary-foreground/60">
-          <a href={`mailto:${siteConfig.supportEmail}`} className="transition-colors hover:text-primary-foreground">
-            {siteConfig.supportEmail}
-          </a>
+          <span>{siteConfig.supportEmail}</span>
           <span>Based in {siteConfig.location}</span>
+          <span>We respond within 24 hours</span>
         </div>
       </div>
       <div>

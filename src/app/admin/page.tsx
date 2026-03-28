@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/site";
-import AdminPage from "@/admin/admin-page";
+import Dashboard from "@/admin/Index";
 
 export const metadata: Metadata = buildMetadata({
   title: "Admin Dashboard",
@@ -9,4 +9,4 @@ export const metadata: Metadata = buildMetadata({
   noIndex: true,
 });
 
-export default AdminPage;
+export default Dashboard;
