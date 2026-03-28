@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
+import { getProviders } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Eye, EyeOff, KeyRound, Mail, ShieldCheck } from "lucide-react";
 import GoogleMark from "@/components/GoogleMark";
@@ -16,8 +17,6 @@ type AuthMode = "login" | "create";
 interface AuthLandingProps {
   initialMode?: AuthMode;
 }
-
-const googleAuthEnabled = process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "true";
 
 const modeContent: Record<AuthMode, { title: string; description: string }> = {
   login: {
@@ -41,6 +40,7 @@ const AuthLanding = ({ initialMode = "login" }: AuthLandingProps) => {
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
+  const [isGoogleAvailable, setIsGoogleAvailable] = useState(false);
   const loginEmailRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -49,6 +49,30 @@ const AuthLanding = ({ initialMode = "login" }: AuthLandingProps) => {
       setError(null);
     }
   }, [initialMode]);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadProviders = async () => {
+      try {
+        const providers = await getProviders();
+
+        if (active) {
+          setIsGoogleAvailable(Boolean(providers?.google));
+        }
+      } catch {
+        if (active) {
+          setIsGoogleAvailable(false);
+        }
+      }
+    };
+
+    loadProviders();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const routeToArea = (role: "customer" | "admin") => {
     router.push(role === "admin" ? "/admin" : "/account");
@@ -91,8 +115,8 @@ const AuthLanding = ({ initialMode = "login" }: AuthLandingProps) => {
     setIsSubmitting(true);
 
     try {
-      if (!googleAuthEnabled) {
-        setError("Google sign-in is not configured yet. Add the Google OAuth environment variables before enabling customer login.");
+      if (!isGoogleAvailable) {
+        setError("Google sign-in is not configured yet. Add the Google OAuth environment variables and restart the dev server.");
         return;
       }
 
@@ -197,7 +221,7 @@ const AuthLanding = ({ initialMode = "login" }: AuthLandingProps) => {
             className="flex h-11 w-full items-center justify-center gap-3 rounded-md border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-70"
           >
             <GoogleMark className="h-5 w-5" />
-            {googleAuthEnabled ? "Continue with Google" : "Google sign-in not configured"}
+            {isGoogleAvailable ? "Continue with Google" : "Google sign-in not configured"}
           </button>
 
           <div className="flex items-center gap-3 pt-2">
@@ -300,11 +324,11 @@ const AuthLanding = ({ initialMode = "login" }: AuthLandingProps) => {
             className="flex h-11 w-full items-center justify-center gap-3 rounded-md border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-70"
           >
             <GoogleMark className="h-5 w-5" />
-            {googleAuthEnabled ? "Continue with Google" : "Google sign-in not configured"}
+            {isGoogleAvailable ? "Continue with Google" : "Google sign-in not configured"}
           </button>
 
           <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500">
-            Set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `NEXT_PUBLIC_ENABLE_GOOGLE_AUTH=true` to enable customer auth.
+            Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, then restart the server to enable customer auth.
           </div>
 
           <p className="pt-2 text-center text-sm text-slate-500">
