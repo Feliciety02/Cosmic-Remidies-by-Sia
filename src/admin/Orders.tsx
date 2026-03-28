@@ -2,13 +2,16 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Download, Filter, Search } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { PaginationControls } from "@/components/admin/PaginationControls";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const orders = [
   { id: "#CR-1042", slug: "CR-1042", customer: "Priya Sharma", email: "priya@email.com", product: "Vedic Astrology Guide", amount: "$49.99", status: "Completed", date: "Mar 24, 2026", payment: "Paddle" },
@@ -26,12 +29,17 @@ const Orders = () => {
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
   const [page, setPage] = useState(1);
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [paymentFilter, setPaymentFilter] = useState("All");
+  const [exportRange, setExportRange] = useState("current");
 
   const filteredOrders = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
     return orders.filter((order) => {
       const matchesFilter = activeFilter === "All" ? true : order.status === activeFilter;
+      const matchesPayment = paymentFilter === "All" ? true : order.payment === paymentFilter;
       const matchesQuery =
         !normalizedQuery ||
         order.id.toLowerCase().includes(normalizedQuery) ||
@@ -39,12 +47,29 @@ const Orders = () => {
         order.email.toLowerCase().includes(normalizedQuery) ||
         order.product.toLowerCase().includes(normalizedQuery);
 
-      return matchesFilter && matchesQuery;
+      return matchesFilter && matchesPayment && matchesQuery;
     });
-  }, [activeFilter, query]);
+  }, [activeFilter, paymentFilter, query]);
 
   const pageSize = 5;
   const paginatedOrders = filteredOrders.slice((page - 1) * pageSize, page * pageSize);
+
+  const applyAdvancedFilter = () => {
+    setPage(1);
+    setFilterDialogOpen(false);
+    toast.success(paymentFilter === "All" ? "Order filters updated." : `Order filters updated for ${paymentFilter} payments.`);
+  };
+
+  const exportOrders = () => {
+    const exportLabels: Record<string, string> = {
+      current: "the current filtered view",
+      month: "the last 30 days",
+      all: "all orders",
+    };
+
+    toast.success(`Prepared order export for ${exportLabels[exportRange]}.`);
+    setExportDialogOpen(false);
+  };
 
   return (
     <AdminLayout title="Orders" subtitle="Track and manage all orders">
@@ -80,11 +105,11 @@ const Orders = () => {
                 }}
               />
             </div>
-            <Button variant="outline" size="icon" className="shrink-0 rounded-xl border-white bg-white/90">
+            <Button variant="outline" size="icon" className="shrink-0 rounded-xl border-white bg-white/90" onClick={() => setFilterDialogOpen(true)}>
               <Filter className="h-4 w-4" />
             </Button>
           </div>
-          <Button variant="outline" className="shrink-0 gap-2 rounded-xl border-white bg-white/90">
+          <Button variant="outline" className="shrink-0 gap-2 rounded-xl border-white bg-white/90" onClick={() => setExportDialogOpen(true)}>
             <Download className="h-4 w-4" />
             Export CSV
           </Button>
@@ -154,6 +179,74 @@ const Orders = () => {
           />
         </Card>
       </div>
+
+      <Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Advanced Filters</DialogTitle>
+            <DialogDescription>Refine the orders table by payment provider.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Label>Payment method</Label>
+            <div className="flex flex-col gap-2">
+              {["All", "Paddle", "PayPal"].map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => setPaymentFilter(option)}
+                  className={`rounded-xl border px-4 py-3 text-left text-sm transition-colors ${
+                    paymentFilter === option ? "border-primary bg-primary/5 text-primary" : "border-border bg-background"
+                  }`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setFilterDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={applyAdvancedFilter}>Apply Filters</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={exportDialogOpen} onOpenChange={setExportDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Export Orders</DialogTitle>
+            <DialogDescription>Choose the export scope for your CSV download.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Label>Export range</Label>
+            <div className="flex flex-col gap-2">
+              {[
+                { value: "current", label: "Current filtered results" },
+                { value: "month", label: "Last 30 days" },
+                { value: "all", label: "All orders" },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setExportRange(option.value)}
+                  className={`rounded-xl border px-4 py-3 text-left text-sm transition-colors ${
+                    exportRange === option.value ? "border-primary bg-primary/5 text-primary" : "border-border bg-background"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setExportDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={exportOrders}>Prepare CSV</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 };

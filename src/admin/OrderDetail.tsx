@@ -140,6 +140,7 @@ const OrderDetail = () => {
   const router = useRouter();
   const [refundReason, setRefundReason] = useState("");
   const [refundOpen, setRefundOpen] = useState(false);
+  const [invoiceOpen, setInvoiceOpen] = useState(false);
   const orderId = params?.orderId;
   const resolvedOrderId = Array.isArray(orderId) ? orderId[0] : orderId;
   const order = orderData[resolvedOrderId ?? ""];
@@ -168,6 +169,11 @@ const OrderDetail = () => {
     toast.success(`Download link resent to ${order.email}`);
   };
 
+  const handleInvoice = () => {
+    toast.success(`Invoice prepared for ${order.id}`);
+    setInvoiceOpen(false);
+  };
+
   return (
     <AdminLayout title={`Order ${order.id}`} subtitle={`Placed on ${order.date}`}>
       <div className="space-y-6">
@@ -181,10 +187,33 @@ const OrderDetail = () => {
               <Mail className="h-4 w-4" />
               Resend Email
             </Button>
-            <Button variant="outline" size="sm" className="gap-2">
-              <Download className="h-4 w-4" />
-              Invoice
-            </Button>
+            <Dialog open={invoiceOpen} onOpenChange={setInvoiceOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Download className="h-4 w-4" />
+                  Invoice
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Prepare Invoice</DialogTitle>
+                  <DialogDescription>Generate an invoice copy for {order.id} and send it to the customer if needed.</DialogDescription>
+                </DialogHeader>
+                <div className="rounded-xl border bg-secondary/40 p-4 text-sm">
+                  <p className="font-medium">{order.customer}</p>
+                  <p className="text-muted-foreground">{order.email}</p>
+                  <p className="mt-2 text-muted-foreground">
+                    Total {order.total} via {order.payment}
+                  </p>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setInvoiceOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleInvoice}>Generate Invoice</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
             {order.status !== "Refunded" ? (
               <Dialog open={refundOpen} onOpenChange={setRefundOpen}>
                 <DialogTrigger asChild>

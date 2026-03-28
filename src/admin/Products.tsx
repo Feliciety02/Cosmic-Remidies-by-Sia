@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Download, Edit, Eye, Layers3, MoreHorizontal, Percent, Plus, Search, SlidersHorizontal, Ticket, Trash2 } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
@@ -10,6 +11,7 @@ import { ProductModal, type EditableProduct } from "@/components/admin/ProductMo
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -129,6 +131,7 @@ const initialBundles: BundleOffer[] = [
 ];
 
 const Products = () => {
+  const router = useRouter();
   const [products, setProducts] = useState(initialProducts);
   const [discounts, setDiscounts] = useState(initialDiscounts);
   const [bundles, setBundles] = useState(initialBundles);
@@ -138,6 +141,8 @@ const Products = () => {
   const [addOpen, setAddOpen] = useState(false);
   const [editProduct, setEditProduct] = useState<EditableProduct | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<EditableProduct | null>(null);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exportSelection, setExportSelection] = useState<"visible" | "all" | "featured">("visible");
   const [discountForm, setDiscountForm] = useState({
     code: "",
     type: "percentage" as DiscountCode["type"],
@@ -269,6 +274,17 @@ const Products = () => {
     toast.success("Bundle draft created.");
   };
 
+  const exportCatalog = () => {
+    const labels = {
+      visible: "the current filtered catalog",
+      all: "the full product catalog",
+      featured: "featured products",
+    };
+
+    toast.success(`Prepared export for ${labels[exportSelection]}.`);
+    setExportOpen(false);
+  };
+
   const catalogContent = (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4 md:gap-6">
@@ -309,7 +325,7 @@ const Products = () => {
             </div>
 
             <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-              <Button variant="outline" className="h-12 shrink-0 gap-2 rounded-2xl border-white bg-white/90 px-5">
+              <Button variant="outline" className="h-12 shrink-0 gap-2 rounded-2xl border-white bg-white/90 px-5" onClick={() => setExportOpen(true)}>
                 <Download className="h-4 w-4" />
                 Export Catalog
               </Button>
@@ -385,7 +401,7 @@ const Products = () => {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push(`/product/${product.slug}`)}>
                     <Eye className="mr-2 h-4 w-4" />
                     View
                   </DropdownMenuItem>
@@ -808,6 +824,42 @@ const Products = () => {
           setDeleteTarget(null);
         }}
       />
+
+      <Dialog open={exportOpen} onOpenChange={setExportOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Export Catalog</DialogTitle>
+            <DialogDescription>Choose which product set should be included in the export.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Label>Export scope</Label>
+            <div className="flex flex-col gap-2">
+              {[
+                { value: "visible", label: "Current filtered catalog" },
+                { value: "all", label: "All products" },
+                { value: "featured", label: "Featured products only" },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setExportSelection(option.value as "visible" | "all" | "featured")}
+                  className={`rounded-xl border px-4 py-3 text-left text-sm transition-colors ${
+                    exportSelection === option.value ? "border-primary bg-primary/5 text-primary" : "border-border bg-background"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setExportOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={exportCatalog}>Prepare Export</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 };

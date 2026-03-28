@@ -1,12 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import { Download, Mail, Search, Users as UsersIcon } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { PaginationControls } from "@/components/admin/PaginationControls";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const customers = [
@@ -30,6 +33,8 @@ const Customers = () => {
   const [query, setQuery] = useState("");
   const [customerPage, setCustomerPage] = useState(1);
   const [subscriberPage, setSubscriberPage] = useState(1);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exportTarget, setExportTarget] = useState<"customers" | "subscribers" | "all">("all");
 
   const filteredCustomers = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -54,6 +59,17 @@ const Customers = () => {
   const subscriberPageSize = 4;
   const paginatedCustomers = filteredCustomers.slice((customerPage - 1) * customerPageSize, customerPage * customerPageSize);
   const paginatedSubscribers = filteredSubscribers.slice((subscriberPage - 1) * subscriberPageSize, subscriberPage * subscriberPageSize);
+
+  const handleExport = () => {
+    const labels = {
+      customers: "customers",
+      subscribers: "subscribers",
+      all: "customers and subscribers",
+    };
+
+    toast.success(`Prepared export for ${labels[exportTarget]}.`);
+    setExportOpen(false);
+  };
 
   return (
     <AdminLayout title="Customers" subtitle="Manage customers and subscribers">
@@ -83,7 +99,7 @@ const Customers = () => {
             Subscribers
           </TabsTrigger>
         </TabsList>
-        <Button variant="outline" className="gap-2 rounded-xl border-white bg-white/90">
+        <Button variant="outline" className="gap-2 rounded-xl border-white bg-white/90" onClick={() => setExportOpen(true)}>
           <Download className="h-4 w-4" />
           Export
         </Button>
@@ -189,6 +205,42 @@ const Customers = () => {
         </Card>
       </TabsContent>
       </Tabs>
+
+      <Dialog open={exportOpen} onOpenChange={setExportOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Export Audience Data</DialogTitle>
+            <DialogDescription>Choose which list you want to export from the admin panel.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Label>Export scope</Label>
+            <div className="flex flex-col gap-2">
+              {[
+                { value: "all", label: "All audience records" },
+                { value: "customers", label: "Customers only" },
+                { value: "subscribers", label: "Subscribers only" },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setExportTarget(option.value as "customers" | "subscribers" | "all")}
+                  className={`rounded-xl border px-4 py-3 text-left text-sm transition-colors ${
+                    exportTarget === option.value ? "border-primary bg-primary/5 text-primary" : "border-border bg-background"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setExportOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleExport}>Prepare Export</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 };

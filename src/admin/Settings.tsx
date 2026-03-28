@@ -1,17 +1,49 @@
 "use client";
 
+import { useState } from "react";
+import { toast } from "sonner";
 import Image from "next/image";
 import { CreditCard, Globe, Palette, Save, Shield } from "lucide-react";
 import logo from "@/assets/logo.svg";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const SettingsPage = () => (
+const SettingsPage = () => {
+  const [generalSaveOpen, setGeneralSaveOpen] = useState(false);
+  const [brandingOpen, setBrandingOpen] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [logoFileName, setLogoFileName] = useState("brandmark-v2.svg");
+  const [inviteForm, setInviteForm] = useState({ name: "", email: "", role: "Editor" });
+
+  const saveGeneralSettings = () => {
+    toast.success("Store settings saved.");
+    setGeneralSaveOpen(false);
+  };
+
+  const uploadLogo = () => {
+    toast.success(`Logo upload queued for ${logoFileName}.`);
+    setBrandingOpen(false);
+  };
+
+  const inviteUser = () => {
+    if (!inviteForm.name.trim() || !inviteForm.email.trim()) {
+      toast.error("Name and email are required.");
+      return;
+    }
+
+    toast.success(`Invitation prepared for ${inviteForm.email}.`);
+    setInviteOpen(false);
+    setInviteForm({ name: "", email: "", role: "Editor" });
+  };
+
+  return (
   <AdminLayout title="Settings" subtitle="Configure your store">
     <Tabs defaultValue="payment" className="space-y-6">
       <TabsList className="flex-wrap bg-secondary">
@@ -107,7 +139,7 @@ const SettingsPage = () => (
               </Select>
             </div>
           </div>
-          <Button className="mt-6 gap-2 gradient-primary text-primary-foreground">
+          <Button className="mt-6 gap-2 gradient-primary text-primary-foreground" onClick={() => setGeneralSaveOpen(true)}>
             <Save className="h-4 w-4" />
             Save
           </Button>
@@ -123,7 +155,7 @@ const SettingsPage = () => (
               <div className="inline-block rounded-xl bg-secondary p-6">
                 <Image src={logo} alt="Logo" className="h-16 w-auto" priority />
               </div>
-              <Button variant="outline" className="mt-3 block">Upload New Logo</Button>
+              <Button variant="outline" className="mt-3 block" onClick={() => setBrandingOpen(true)}>Upload New Logo</Button>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
@@ -149,7 +181,7 @@ const SettingsPage = () => (
         <Card className="p-6">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-semibold">Admin Users</h3>
-            <Button className="gradient-primary text-primary-foreground" size="sm">Invite User</Button>
+            <Button className="gradient-primary text-primary-foreground" size="sm" onClick={() => setInviteOpen(true)}>Invite User</Button>
           </div>
           <div className="space-y-3">
             {[
@@ -173,7 +205,92 @@ const SettingsPage = () => (
         </Card>
       </TabsContent>
     </Tabs>
+    <Dialog open={generalSaveOpen} onOpenChange={setGeneralSaveOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Save Store Settings</DialogTitle>
+          <DialogDescription>Confirm the current store information changes before applying them.</DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setGeneralSaveOpen(false)}>
+            Cancel
+          </Button>
+          <Button onClick={saveGeneralSettings}>Confirm Save</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
+    <Dialog open={brandingOpen} onOpenChange={setBrandingOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Upload New Logo</DialogTitle>
+          <DialogDescription>Queue a new branding asset for review before publishing it to the storefront.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-2">
+          <Label htmlFor="logo-file-name">Asset file name</Label>
+          <Input
+            id="logo-file-name"
+            value={logoFileName}
+            onChange={(event) => setLogoFileName(event.target.value)}
+            placeholder="brandmark-v2.svg"
+          />
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setBrandingOpen(false)}>
+            Cancel
+          </Button>
+          <Button onClick={uploadLogo}>Queue Upload</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
+    <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Invite Admin User</DialogTitle>
+          <DialogDescription>Create a pending invite for a new admin or editor account.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="invite-name">Name</Label>
+            <Input
+              id="invite-name"
+              value={inviteForm.name}
+              onChange={(event) => setInviteForm((current) => ({ ...current, name: event.target.value }))}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="invite-email">Email</Label>
+            <Input
+              id="invite-email"
+              value={inviteForm.email}
+              onChange={(event) => setInviteForm((current) => ({ ...current, email: event.target.value }))}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="invite-role">Role</Label>
+            <Select value={inviteForm.role} onValueChange={(value) => setInviteForm((current) => ({ ...current, role: value }))}>
+              <SelectTrigger id="invite-role">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Editor">Editor</SelectItem>
+                <SelectItem value="Manager">Manager</SelectItem>
+                <SelectItem value="Owner">Owner</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setInviteOpen(false)}>
+            Cancel
+          </Button>
+          <Button onClick={inviteUser}>Send Invite</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </AdminLayout>
-);
+  );
+};
 
 export default SettingsPage;
