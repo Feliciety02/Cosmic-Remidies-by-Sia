@@ -54,10 +54,10 @@ const Hero = () => (
           Trusted by 5,000+ Seekers
         </div>
 
-        <h1 className="mb-6 font-display text-4xl font-bold leading-snug tracking-tight text-stone-800 md:text-5xl lg:text-[3.6rem]">
+        <h1 className="mb-6 font-display text-4xl font-bold leading-[1.18] tracking-tight text-stone-800 md:text-5xl lg:text-[3.6rem]">
           Your sanctuary for{" "}
           <span
-            className="relative inline-block"
+            className="relative inline-block pb-[0.12em]"
             style={{
               background: "linear-gradient(135deg, #5b8fe0 0%, #3d86b6 100%)",
               WebkitBackgroundClip: "text",
