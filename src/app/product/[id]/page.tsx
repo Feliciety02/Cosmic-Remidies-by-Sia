@@ -68,7 +68,7 @@ const ProductPage = ({ params }: ProductPageProps) => {
 
           <div className="lg:h-[calc(100vh-7rem)] lg:overflow-y-auto lg:pr-3">
             {product.badge && (
-              <span className="mb-4 inline-block rounded-full bg-gradient-gold px-4 py-1.5 text-sm font-bold text-primary-foreground">
+              <span className="mb-4 inline-block rounded-full bg-[linear-gradient(135deg,#d2a24c_0%,#b57a2d_100%)] px-4 py-1.5 text-sm font-bold text-white shadow-[0_8px_24px_rgba(181,122,45,0.24)]">
                 {product.badge}
               </span>
             )}

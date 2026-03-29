@@ -11,7 +11,7 @@ const ProductCard = ({ id, title, price, originalPrice, image, rating, badge }: 
     <Link href={`/product/${id}`} className="group block">
       <div className="relative border-b bg-[linear-gradient(180deg,rgba(244,249,255,1)_0%,rgba(235,243,252,0.92)_100%)] px-5 py-6">
         {badge && (
-          <span className="absolute left-3 top-3 z-10 rounded-full bg-[linear-gradient(135deg,#4c97e4_0%,#2a67b2_100%)] px-3 py-1.5 text-xs font-bold text-white shadow-[0_8px_24px_rgba(42,103,178,0.28)]">
+          <span className="absolute left-3 top-3 z-10 rounded-full bg-[linear-gradient(135deg,#d2a24c_0%,#b57a2d_100%)] px-3 py-1.5 text-xs font-bold text-white shadow-[0_8px_24px_rgba(181,122,45,0.28)]">
             {badge}
           </span>
         )}
