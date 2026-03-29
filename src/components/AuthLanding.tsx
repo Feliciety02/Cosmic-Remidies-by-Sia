@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { getProviders } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Eye, EyeOff, KeyRound, Mail, ShieldCheck } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, KeyRound, Mail, ShieldCheck, UserPlus } from "lucide-react";
 import GoogleMark from "@/components/GoogleMark";
 import { useAuth } from "@/contexts/AuthContext";
 import { authPanelId, buildAuthHref } from "@/lib/site";
@@ -22,11 +22,11 @@ interface AuthLandingProps {
 const modeContent: Record<AuthMode, { title: string; description: string }> = {
   login: {
     title: "Sign in",
-    description: "Use Google for customer access, or use the admin credentials form for the dashboard.",
+    description: "Customers can use email/password or Google. Admins still use the dedicated credentials form.",
   },
   create: {
-    title: "Customer access",
-    description: "Customer accounts should use Google sign-in. Email/password signup stays off until a database-backed auth flow is added.",
+    title: "Create account",
+    description: "Create a customer account now and keep your cart, orders, and library flow moving.",
   },
 };
 
@@ -44,14 +44,18 @@ const authErrorMessages: Record<string, string> = {
 
 const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) => {
   const router = useRouter();
-  const { user, isHydrated, login, loginWithGoogle, logout } = useAuth();
+  const { user, isHydrated, loginCustomer, loginAdmin, loginWithGoogle, createAccount, logout } = useAuth();
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showLoginPassword, setShowLoginPassword] = useState(false);
-  const [loginForm, setLoginForm] = useState({ email: "", password: "" });
+  const [showCustomerPassword, setShowCustomerPassword] = useState(false);
+  const [showCreatePassword, setShowCreatePassword] = useState(false);
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
+  const [customerLoginForm, setCustomerLoginForm] = useState({ email: "", password: "" });
+  const [createForm, setCreateForm] = useState({ name: "", email: "", password: "" });
+  const [adminForm, setAdminForm] = useState({ email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const [isGoogleAvailable, setIsGoogleAvailable] = useState(false);
-  const loginEmailRef = useRef<HTMLInputElement>(null);
+  const customerEmailRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (initialMode === "login" || initialMode === "create") {
@@ -95,19 +99,38 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
     router.replace(buildAuthHref(nextMode), { scroll: false });
   };
 
-  const focusLoginField = () => {
+  const focusCustomerField = () => {
     requestAnimationFrame(() => {
-      loginEmailRef.current?.focus();
+      customerEmailRef.current?.focus();
     });
   };
 
-  const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
+  const handleCustomerLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
     setIsSubmitting(true);
 
     try {
-      const loggedInUser = await login(loginForm);
+      const loggedInUser = await loginCustomer(customerLoginForm);
+
+      if (!loggedInUser) {
+        setError("We couldn't match that customer email and password.");
+        return;
+      }
+
+      routeToArea(loggedInUser.role);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleAdminLogin = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      const loggedInUser = await loginAdmin(adminForm);
 
       if (!loggedInUser) {
         setError("The admin credentials you entered are incorrect.");
@@ -120,13 +143,32 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
     }
   };
 
+  const handleCreateAccount = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      const nextUser = await createAccount(createForm);
+
+      if (!nextUser) {
+        setError("We couldn't create that account. Try a different email or check the form.");
+        return;
+      }
+
+      routeToArea(nextUser.role);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleGoogleLogin = async () => {
     setError(null);
     setIsSubmitting(true);
 
     try {
       if (!isGoogleAvailable) {
-        setError("Google sign-in is not configured yet. Add the Google OAuth environment variables and restart the dev server.");
+        setError("Google sign-in is not configured yet. Use customer email/password for now or add the OAuth keys.");
         return;
       }
 
@@ -163,7 +205,7 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
         <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
           {isAdmin
             ? "Open the dashboard to manage the platform, or return to the storefront view."
-            : "Your account is active. Open your dashboard, revisit saved items, or continue exploring the collection."}
+            : "Your customer account is active. Open your dashboard, revisit your library, or keep exploring the shop."}
         </p>
 
         <div className="mt-6 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-700">
@@ -224,6 +266,57 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
 
       {mode === "login" ? (
         <div className="mt-7 space-y-4">
+          <form className="space-y-4" onSubmit={handleCustomerLogin}>
+            <div className="space-y-2">
+              <Label htmlFor="customer-login-email" className="text-[15px] font-medium text-slate-700">
+                Customer email
+              </Label>
+              <div className="relative">
+                <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <Input
+                  ref={customerEmailRef}
+                  id="customer-login-email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@example.com"
+                  className="h-11 rounded-md border-slate-200 bg-slate-50 pl-11 pr-4 text-slate-700 placeholder:text-slate-400 focus-visible:ring-[#2f6b89]/30"
+                  value={customerLoginForm.email}
+                  onChange={(event) => setCustomerLoginForm((current) => ({ ...current, email: event.target.value }))}
+                  required
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="customer-login-password" className="text-[15px] font-medium text-slate-700">
+                Password
+              </Label>
+              <div className="relative">
+                <KeyRound className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <Input
+                  id="customer-login-password"
+                  type={showCustomerPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  placeholder="Enter your password"
+                  className="h-11 rounded-md border-slate-200 bg-slate-50 pl-11 pr-11 text-slate-700 placeholder:text-slate-400 focus-visible:ring-[#2f6b89]/30"
+                  value={customerLoginForm.password}
+                  onChange={(event) => setCustomerLoginForm((current) => ({ ...current, password: event.target.value }))}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCustomerPassword((current) => !current)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600"
+                  aria-label={showCustomerPassword ? "Hide password" : "Show password"}
+                >
+                  <PasswordToggleIcon visible={showCustomerPassword} />
+                </button>
+              </div>
+            </div>
+            <Button type="submit" className="h-11 w-full rounded-md bg-[#2f6b89] text-base font-semibold text-white hover:bg-[#275b74]" disabled={isSubmitting}>
+              {isSubmitting ? "Signing in..." : "Sign In to Your Account"}
+            </Button>
+          </form>
+
           <button
             type="button"
             onClick={handleGoogleLogin}
@@ -234,72 +327,65 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
             {isGoogleAvailable ? "Continue with Google" : "Google sign-in not configured"}
           </button>
 
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500">
+            Customer accounts can now use email/password locally. Google remains optional when configured.
+          </div>
+
           <div className="flex items-center gap-3 pt-2">
             <div className="h-px flex-1 bg-slate-200" />
             <span className="text-xs font-medium uppercase tracking-[0.24em] text-slate-400">admin only</span>
             <div className="h-px flex-1 bg-slate-200" />
           </div>
 
-          <form className="space-y-4" onSubmit={handleLogin}>
+          <form className="space-y-4" onSubmit={handleAdminLogin}>
             <div className="space-y-2">
-              <Label htmlFor="login-email" className="text-[15px] font-medium text-slate-700">
+              <Label htmlFor="admin-login-email" className="text-[15px] font-medium text-slate-700">
                 Admin email
               </Label>
               <div className="relative">
                 <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <Input
-                  ref={loginEmailRef}
-                  id="login-email"
-                  name="email"
+                  id="admin-login-email"
                   type="email"
                   autoComplete="email"
                   placeholder="admin@example.com"
                   className="h-11 rounded-md border-slate-200 bg-slate-50 pl-11 pr-4 text-slate-700 placeholder:text-slate-400 focus-visible:ring-[#2f6b89]/30"
-                  value={loginForm.email}
-                  onChange={(event) => setLoginForm((current) => ({ ...current, email: event.target.value }))}
+                  value={adminForm.email}
+                  onChange={(event) => setAdminForm((current) => ({ ...current, email: event.target.value }))}
                   required
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="login-password" className="text-[15px] font-medium text-slate-700">
+              <Label htmlFor="admin-login-password" className="text-[15px] font-medium text-slate-700">
                 Admin password
               </Label>
               <div className="relative">
                 <KeyRound className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <Input
-                  id="login-password"
-                  name="password"
-                  type={showLoginPassword ? "text" : "password"}
+                  id="admin-login-password"
+                  type={showAdminPassword ? "text" : "password"}
                   autoComplete="current-password"
                   placeholder="Enter your admin password"
                   className="h-11 rounded-md border-slate-200 bg-slate-50 pl-11 pr-11 text-slate-700 placeholder:text-slate-400 focus-visible:ring-[#2f6b89]/30"
-                  value={loginForm.password}
-                  onChange={(event) => setLoginForm((current) => ({ ...current, password: event.target.value }))}
+                  value={adminForm.password}
+                  onChange={(event) => setAdminForm((current) => ({ ...current, password: event.target.value }))}
                   required
                 />
                 <button
                   type="button"
-                  onClick={() => setShowLoginPassword((current) => !current)}
+                  onClick={() => setShowAdminPassword((current) => !current)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600"
-                  aria-label={showLoginPassword ? "Hide password" : "Show password"}
+                  aria-label={showAdminPassword ? "Hide password" : "Show password"}
                 >
-                  <PasswordToggleIcon visible={showLoginPassword} />
+                  <PasswordToggleIcon visible={showAdminPassword} />
                 </button>
               </div>
             </div>
-            <Button
-              type="submit"
-              className="h-11 w-full rounded-md bg-[#2f6b89] text-base font-semibold text-white hover:bg-[#275b74]"
-              disabled={isSubmitting}
-            >
+            <Button type="submit" variant="outline" className="h-11 w-full rounded-md border-slate-300" disabled={isSubmitting}>
               {isSubmitting ? "Signing in..." : "Sign In as Admin"}
             </Button>
           </form>
-
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500">
-            Customers should sign in with Google. Email/password access is reserved for the admin dashboard.
-          </div>
 
           <p className="pt-2 text-center text-sm text-slate-500">
             Need a customer account?{" "}
@@ -308,7 +394,7 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
               className="font-semibold text-[#2f6b89] transition-colors hover:text-[#275b74]"
               onClick={() => setActiveMode("create")}
             >
-              View customer access
+              Create one here
             </button>
           </p>
         </div>
@@ -320,14 +406,79 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                 <ShieldCheck className="h-4 w-4" />
               </span>
               <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-slate-900">Customer sign-up is provider-based now</h3>
+                <h3 className="text-sm font-semibold text-slate-900">Customer onboarding is available now</h3>
                 <p className="text-sm leading-relaxed text-slate-600">
-                  Email and password sign-up has been removed from the browser because it was only storing accounts locally.
-                  Use Google sign-in once your OAuth keys are configured.
+                  Create an email/password account in the browser and move straight into your customer dashboard. Google
+                  sign-in still works when OAuth is configured.
                 </p>
               </div>
             </div>
           </div>
+
+          <form className="space-y-4" onSubmit={handleCreateAccount}>
+            <div className="space-y-2">
+              <Label htmlFor="create-name" className="text-[15px] font-medium text-slate-700">
+                Full name
+              </Label>
+              <Input
+                id="create-name"
+                autoComplete="name"
+                placeholder="Your name"
+                className="h-11 rounded-md border-slate-200 bg-slate-50 text-slate-700 placeholder:text-slate-400 focus-visible:ring-[#2f6b89]/30"
+                value={createForm.name}
+                onChange={(event) => setCreateForm((current) => ({ ...current, name: event.target.value }))}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="create-email" className="text-[15px] font-medium text-slate-700">
+                Email
+              </Label>
+              <div className="relative">
+                <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <Input
+                  id="create-email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@example.com"
+                  className="h-11 rounded-md border-slate-200 bg-slate-50 pl-11 pr-4 text-slate-700 placeholder:text-slate-400 focus-visible:ring-[#2f6b89]/30"
+                  value={createForm.email}
+                  onChange={(event) => setCreateForm((current) => ({ ...current, email: event.target.value }))}
+                  required
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="create-password" className="text-[15px] font-medium text-slate-700">
+                Password
+              </Label>
+              <div className="relative">
+                <KeyRound className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <Input
+                  id="create-password"
+                  type={showCreatePassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  placeholder="Create a password"
+                  className="h-11 rounded-md border-slate-200 bg-slate-50 pl-11 pr-11 text-slate-700 placeholder:text-slate-400 focus-visible:ring-[#2f6b89]/30"
+                  value={createForm.password}
+                  onChange={(event) => setCreateForm((current) => ({ ...current, password: event.target.value }))}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCreatePassword((current) => !current)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600"
+                  aria-label={showCreatePassword ? "Hide password" : "Show password"}
+                >
+                  <PasswordToggleIcon visible={showCreatePassword} />
+                </button>
+              </div>
+            </div>
+            <Button type="submit" className="h-11 w-full gap-2 rounded-md bg-[#2f6b89] text-base font-semibold text-white hover:bg-[#275b74]" disabled={isSubmitting}>
+              <UserPlus className="h-4 w-4" />
+              {isSubmitting ? "Creating account..." : "Create Customer Account"}
+            </Button>
+          </form>
 
           <button
             type="button"
@@ -336,21 +487,21 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
             className="flex h-11 w-full items-center justify-center gap-3 rounded-md border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-70"
           >
             <GoogleMark className="h-5 w-5" />
-            {isGoogleAvailable ? "Continue with Google" : "Google sign-in not configured"}
+            {isGoogleAvailable ? "Create with Google" : "Google sign-in not configured"}
           </button>
 
           <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500">
-            Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, then restart the server to enable customer auth.
+            Customer accounts are stored locally in this environment so you can complete signup and onboarding immediately.
           </div>
 
           <p className="pt-2 text-center text-sm text-slate-500">
-            Need admin access instead?{" "}
+            Already have an account?{" "}
             <button
               type="button"
               className="font-semibold text-[#2f6b89] transition-colors hover:text-[#275b74]"
               onClick={() => {
                 setActiveMode("login");
-                focusLoginField();
+                focusCustomerField();
               }}
             >
               Sign in

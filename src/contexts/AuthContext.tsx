@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { getSession, signIn, signOut, useSession } from "next-auth/react";
 import { toast } from "sonner";
 import type { AuthUser } from "@/lib/auth";
@@ -14,16 +14,23 @@ interface CreateAccountInput extends LoginInput {
   name: string;
 }
 
+interface StoredCustomerAccount extends AuthUser {
+  password: string;
+}
+
 interface AuthContextType {
   user: AuthUser | null;
   isHydrated: boolean;
-  login: (input: LoginInput) => Promise<AuthUser | null>;
+  loginCustomer: (input: LoginInput) => Promise<AuthUser | null>;
+  loginAdmin: (input: LoginInput) => Promise<AuthUser | null>;
   loginWithGoogle: (callbackUrl?: string) => Promise<void>;
   createAccount: (input: CreateAccountInput) => Promise<AuthUser | null>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const CUSTOMER_ACCOUNTS_STORAGE_KEY = "cosmic-customer-accounts";
+const CUSTOMER_SESSION_STORAGE_KEY = "cosmic-customer-session";
 
 const mapSessionUser = (sessionUser: {
   name?: string | null;
@@ -43,12 +50,103 @@ const mapSessionUser = (sessionUser: {
   };
 };
 
+const normalizeEmail = (email: string) => email.trim().toLowerCase();
+
+const readStoredAccounts = (rawValue: string | null): StoredCustomerAccount[] => {
+  if (!rawValue) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(rawValue) as StoredCustomerAccount[];
+
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed.filter(
+      (account) =>
+        account &&
+        typeof account.name === "string" &&
+        typeof account.email === "string" &&
+        typeof account.password === "string" &&
+        typeof account.createdAt === "string" &&
+        account.role === "customer",
+    );
+  } catch {
+    return [];
+  }
+};
+
+const readStoredSession = (rawValue: string | null): AuthUser | null => {
+  if (!rawValue) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(rawValue) as AuthUser;
+
+    if (
+      !parsed ||
+      typeof parsed.name !== "string" ||
+      typeof parsed.email !== "string" ||
+      typeof parsed.createdAt !== "string" ||
+      parsed.role !== "customer"
+    ) {
+      return null;
+    }
+
+    return parsed;
+  } catch {
+    return null;
+  }
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { data: session, status } = useSession();
-  const user = mapSessionUser(session?.user ?? {});
-  const isHydrated = status !== "loading";
+  const sessionUser = mapSessionUser(session?.user ?? {});
+  const [localUser, setLocalUser] = useState<AuthUser | null>(null);
+  const [localReady, setLocalReady] = useState(false);
+  const user = useMemo(() => sessionUser ?? localUser, [localUser, sessionUser]);
+  const isHydrated = status !== "loading" && localReady;
 
-  const login = async ({ email, password }: LoginInput) => {
+  useEffect(() => {
+    const storedSession = readStoredSession(window.localStorage.getItem(CUSTOMER_SESSION_STORAGE_KEY));
+    setLocalUser(storedSession);
+    setLocalReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (sessionUser) {
+      window.localStorage.removeItem(CUSTOMER_SESSION_STORAGE_KEY);
+      setLocalUser(null);
+    }
+  }, [sessionUser]);
+
+  const loginCustomer = async ({ email, password }: LoginInput) => {
+    const accounts = readStoredAccounts(window.localStorage.getItem(CUSTOMER_ACCOUNTS_STORAGE_KEY));
+    const normalizedEmail = normalizeEmail(email);
+    const account = accounts.find((entry) => entry.email === normalizedEmail && entry.password === password);
+
+    if (!account) {
+      toast.error("We couldn't match that customer email and password.");
+      return null;
+    }
+
+    const nextUser: AuthUser = {
+      name: account.name,
+      email: account.email,
+      createdAt: account.createdAt,
+      role: "customer",
+    };
+
+    window.localStorage.setItem(CUSTOMER_SESSION_STORAGE_KEY, JSON.stringify(nextUser));
+    setLocalUser(nextUser);
+    toast.success(`Welcome back, ${nextUser.name}.`);
+    return nextUser;
+  };
+
+  const loginAdmin = async ({ email, password }: LoginInput) => {
     const result = await signIn("credentials", {
       email,
       password,
@@ -68,7 +166,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return null;
     }
 
-    toast.success(nextUser.role === "admin" ? "Admin access granted." : `Welcome back, ${nextUser.name}.`);
+    toast.success("Admin access granted.");
     return nextUser;
   };
 
@@ -76,18 +174,57 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await signIn("google", { callbackUrl });
   };
 
-  const createAccount = async (_input: CreateAccountInput) => {
-    toast.error("Email/password signup is disabled until a database-backed customer auth flow is added.");
-    return null;
+  const createAccount = async ({ name, email, password }: CreateAccountInput) => {
+    const trimmedName = name.trim();
+    const normalizedEmail = normalizeEmail(email);
+    const trimmedPassword = password.trim();
+
+    if (!trimmedName || !normalizedEmail || !trimmedPassword) {
+      toast.error("Name, email, and password are required.");
+      return null;
+    }
+
+    const accounts = readStoredAccounts(window.localStorage.getItem(CUSTOMER_ACCOUNTS_STORAGE_KEY));
+
+    if (accounts.some((account) => account.email === normalizedEmail)) {
+      toast.error("A customer account with that email already exists.");
+      return null;
+    }
+
+    const nextUser: AuthUser = {
+      name: trimmedName,
+      email: normalizedEmail,
+      createdAt: new Date().toISOString(),
+      role: "customer",
+    };
+
+    const nextAccount: StoredCustomerAccount = {
+      ...nextUser,
+      password: trimmedPassword,
+    };
+
+    window.localStorage.setItem(CUSTOMER_ACCOUNTS_STORAGE_KEY, JSON.stringify([nextAccount, ...accounts]));
+    window.localStorage.setItem(CUSTOMER_SESSION_STORAGE_KEY, JSON.stringify(nextUser));
+    setLocalUser(nextUser);
+    toast.success(`Account created for ${nextUser.name}.`);
+    return nextUser;
   };
 
   const logout = async () => {
-    await signOut({ redirect: false });
+    window.localStorage.removeItem(CUSTOMER_SESSION_STORAGE_KEY);
+    setLocalUser(null);
+
+    if (sessionUser) {
+      await signOut({ redirect: false });
+    }
+
     toast.success("You have been signed out.");
   };
 
   return (
-    <AuthContext.Provider value={{ user, isHydrated, login, loginWithGoogle, createAccount, logout }}>
+    <AuthContext.Provider
+      value={{ user, isHydrated, loginCustomer, loginAdmin, loginWithGoogle, createAccount, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

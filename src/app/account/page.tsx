@@ -16,11 +16,7 @@ export const metadata: Metadata = buildMetadata({
 const AccountPage = async () => {
   const session = await getAuthSession();
 
-  if (!session?.user) {
-    redirect("/?auth=login");
-  }
-
-  if (session.user.role === "admin") {
+  if (session?.user?.role === "admin") {
     redirect("/admin");
   }
 

@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 export const config = {
-  matcher: ["/admin/:path*", "/account/:path*"],
+  matcher: ["/admin/:path*"],
 };
 
 export const middleware = async (request: NextRequest) => {
@@ -17,14 +17,5 @@ export const middleware = async (request: NextRequest) => {
 
     return NextResponse.next();
   }
-
-  if (!token) {
-    return NextResponse.redirect(new URL("/?auth=login", request.url));
-  }
-
-  if (token.role === "admin") {
-    return NextResponse.redirect(new URL("/admin", request.url));
-  }
-
   return NextResponse.next();
 };
