@@ -33,7 +33,7 @@ const AccountPage = async () => {
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-primary">Customer Area</p>
             <h1 className="mt-3 font-display text-4xl font-bold">Your Cosmic Remedies account</h1>
             <p className="mt-4 text-muted-foreground">
-              Keep your customer session in one place and use this dashboard as the base for future purchases and guide access.
+              Review your order history, reopen your digital library, and continue your shopping journey from one place.
             </p>
           </div>
           <AccountDashboard />

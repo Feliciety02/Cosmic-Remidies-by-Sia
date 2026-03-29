@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Menu, ShoppingCart, X } from "lucide-react";
 import logo from "@/assets/logo.svg";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,8 +15,9 @@ import { Button } from "@/components/ui/button";
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const currentPath = pathname ?? "/";
-  const { user, isHydrated: isAuthHydrated } = useAuth();
+  const { user, isHydrated: isAuthHydrated, logout } = useAuth();
   const { totalItems, isHydrated } = useCart();
   const isCustomer = user?.role === "customer";
   const accountHref = user?.role === "admin" ? "/admin" : "/account";
@@ -32,6 +33,13 @@ const Navbar = () => {
     }
 
     return currentPath === href || currentPath.startsWith(`${href}/`);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setOpen(false);
+    router.push("/");
+    router.refresh();
   };
 
   return (
@@ -57,6 +65,16 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          {isAuthHydrated && user ? (
+            <Button
+              type="button"
+              variant="outline"
+              className="hidden rounded-full border-sky-900/10 bg-white/70 md:inline-flex"
+              onClick={handleLogout}
+            >
+              Logout
+            </Button>
+          ) : null}
           <Button
             asChild
             className="hidden rounded-full border-0 bg-[linear-gradient(135deg,#3f89d8_0%,#245ea7_100%)] text-white shadow-[0_10px_30px_rgba(36,94,167,0.24)] transition-all hover:brightness-105 md:inline-flex"
@@ -111,6 +129,16 @@ const Navbar = () => {
               {isAuthHydrated && user ? accountLabel : "Login"}
             </Link>
           </Button>
+          {isAuthHydrated && user ? (
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-3 w-full border-sky-900/10 bg-white/70"
+              onClick={handleLogout}
+            >
+              Logout
+            </Button>
+          ) : null}
         </div>
       )}
     </nav>

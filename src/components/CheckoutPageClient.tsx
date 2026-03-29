@@ -7,7 +7,14 @@ import { CreditCard, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
-import { buildOrderNumber, CHECKOUT_ORDER_STORAGE_KEY, type CheckoutOrderSnapshot } from "@/lib/checkout";
+import {
+  buildOrderNumber,
+  CHECKOUT_ORDER_HISTORY_STORAGE_KEY,
+  CHECKOUT_ORDER_STORAGE_KEY,
+  readOrderHistory,
+  type CheckoutOrderSnapshot,
+  upsertOrderHistory,
+} from "@/lib/checkout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -118,6 +125,9 @@ const CheckoutPageClient = () => {
       };
 
       window.localStorage.setItem(CHECKOUT_ORDER_STORAGE_KEY, JSON.stringify(snapshot));
+      const existingHistory = readOrderHistory(window.localStorage.getItem(CHECKOUT_ORDER_HISTORY_STORAGE_KEY));
+      const nextHistory = upsertOrderHistory(existingHistory, snapshot);
+      window.localStorage.setItem(CHECKOUT_ORDER_HISTORY_STORAGE_KEY, JSON.stringify(nextHistory));
       clearCart();
       toast.success("Order placed. Your download details are ready.");
       router.push("/thank-you");
