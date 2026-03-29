@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
-import { toast } from "sonner";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import TrustBar from "@/components/TrustBar";
@@ -40,7 +39,7 @@ const CartPageClient = () => {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-[15px] font-semibold text-stone-800">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground">PDF Guide • Instant Delivery</p>
+                  <p className="text-sm text-muted-foreground">PDF Guide | Instant Delivery</p>
                   <div className="mt-3 flex items-center justify-between">
                     <div className="flex items-center gap-2 rounded-xl border border-stone-800/10 bg-white/80">
                       <button
@@ -91,15 +90,12 @@ const CartPageClient = () => {
               <span>Total</span>
               <span>${totalPrice}</span>
             </div>
-            <Button
-              type="button"
-              size="lg"
-              className="mt-6 w-full text-base"
-              onClick={() => toast.info("Connect your checkout provider here.")}
-            >
-              Proceed to Checkout
+            <Button asChild type="button" size="lg" className="mt-6 w-full text-base">
+              <Link href="/checkout">Proceed to Checkout</Link>
             </Button>
-            <p className="mt-3 text-center text-sm text-muted-foreground">Secure checkout powered by Paddle 🔒</p>
+            <p className="mt-3 text-center text-sm text-muted-foreground">
+              Secure checkout flow with instant digital delivery.
+            </p>
           </div>
         </>
       )}
