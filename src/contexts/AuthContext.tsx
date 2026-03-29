@@ -31,6 +31,15 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const CUSTOMER_ACCOUNTS_STORAGE_KEY = "cosmic-customer-accounts";
 const CUSTOMER_SESSION_STORAGE_KEY = "cosmic-customer-session";
+const defaultCustomerAccounts: StoredCustomerAccount[] = [
+  {
+    name: "Demo Customer",
+    email: "customer@example.com",
+    password: "customer123",
+    createdAt: "2026-03-29T00:00:00.000Z",
+    role: "customer",
+  },
+];
 
 const mapSessionUser = (sessionUser: {
   name?: string | null;
@@ -54,17 +63,17 @@ const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
 const readStoredAccounts = (rawValue: string | null): StoredCustomerAccount[] => {
   if (!rawValue) {
-    return [];
+    return defaultCustomerAccounts;
   }
 
   try {
     const parsed = JSON.parse(rawValue) as StoredCustomerAccount[];
 
     if (!Array.isArray(parsed)) {
-      return [];
+      return defaultCustomerAccounts;
     }
 
-    return parsed.filter(
+    const validAccounts = parsed.filter(
       (account) =>
         account &&
         typeof account.name === "string" &&
@@ -73,8 +82,10 @@ const readStoredAccounts = (rawValue: string | null): StoredCustomerAccount[] =>
         typeof account.createdAt === "string" &&
         account.role === "customer",
     );
+
+    return [...defaultCustomerAccounts, ...validAccounts.filter((account) => account.email !== defaultCustomerAccounts[0].email)];
   } catch {
-    return [];
+    return defaultCustomerAccounts;
   }
 };
 
