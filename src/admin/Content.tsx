@@ -14,6 +14,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  ADMIN_TESTIMONIALS_STORAGE_KEY,
+  ADMIN_TRUST_BAR_STORAGE_KEY,
+  initialTestimonials,
+  initialTrustBarItems,
+  readAdminTestimonials,
+  readAdminTrustBarItems,
+} from "@/lib/admin-store";
 
 type PageField = {
   id: string;
@@ -28,12 +36,6 @@ type PageDefinition = {
   description: string;
   fields: PageField[];
 };
-
-const initialTestimonials = [
-  { name: "Priya Sharma", text: "This guide transformed my understanding of Vedic astrology!", rating: 5 },
-  { name: "David Wilson", text: "Beautifully written and incredibly insightful. Worth every penny.", rating: 5 },
-  { name: "Maya Chen", text: "The cosmic healing bundle is a treasure trove of wisdom.", rating: 4 },
-];
 
 const getHomepagePageDefinition = (homepageContent: HomepageContent): PageDefinition => ({
   title: "Landing Storefront Content",
@@ -191,6 +193,7 @@ const ContentPage = () => {
   const [isLoadingHomepage, setIsLoadingHomepage] = useState(true);
   const [isSavingPage, setIsSavingPage] = useState(false);
   const [testimonials, setTestimonials] = useState(initialTestimonials);
+  const [trustBarItems, setTrustBarItems] = useState(initialTrustBarItems);
   const [pageListPage, setPageListPage] = useState(1);
   const [testimonialPage, setTestimonialPage] = useState(1);
   const [pageEditorOpen, setPageEditorOpen] = useState(false);
@@ -232,6 +235,8 @@ const ContentPage = () => {
 
         if (active) {
           setHomepageContent(content);
+          setTestimonials(readAdminTestimonials(window.localStorage.getItem(ADMIN_TESTIMONIALS_STORAGE_KEY)));
+          setTrustBarItems(readAdminTrustBarItems(window.localStorage.getItem(ADMIN_TRUST_BAR_STORAGE_KEY)));
         }
       } catch {
         if (active) {
@@ -250,6 +255,14 @@ const ContentPage = () => {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(ADMIN_TESTIMONIALS_STORAGE_KEY, JSON.stringify(testimonials));
+  }, [testimonials]);
+
+  useEffect(() => {
+    window.localStorage.setItem(ADMIN_TRUST_BAR_STORAGE_KEY, JSON.stringify(trustBarItems));
+  }, [trustBarItems]);
 
   const openPageEditor = (page: string) => {
     setSelectedPage(page);
@@ -432,9 +445,34 @@ const ContentPage = () => {
           <Card className="rounded-[1.75rem] border-white/70 bg-white/90 p-6 shadow-[0_18px_52px_rgba(66,97,129,0.08)]">
             <h3 className="mb-4 font-semibold">Trust Bar</h3>
             <div className="space-y-3">
-              <Input id="trust-bar-line-1" name="trustBarLine1" placeholder="e.g., 1000+ Happy Customers" defaultValue="Trusted by 1,000+ seekers worldwide" className="border-0 bg-secondary" />
-              <Input id="trust-bar-line-2" name="trustBarLine2" placeholder="e.g., 100% Satisfaction Guarantee" defaultValue="100% Satisfaction Guarantee" className="border-0 bg-secondary" />
-              <Input id="trust-bar-line-3" name="trustBarLine3" placeholder="e.g., Instant Digital Delivery" defaultValue="Instant PDF Download" className="border-0 bg-secondary" />
+              {trustBarItems.map((item, index) => (
+                <div key={`${item.label}-${index}`} className="grid gap-3 md:grid-cols-2">
+                  <Input
+                    id={`trust-bar-line-${index + 1}-label`}
+                    name={`trustBarLine${index + 1}Label`}
+                    placeholder="Primary label"
+                    value={item.label}
+                    onChange={(event) =>
+                      setTrustBarItems((current) =>
+                        current.map((entry, itemIndex) => (itemIndex === index ? { ...entry, label: event.target.value } : entry)),
+                      )
+                    }
+                    className="border-0 bg-secondary"
+                  />
+                  <Input
+                    id={`trust-bar-line-${index + 1}-sub`}
+                    name={`trustBarLine${index + 1}Sub`}
+                    placeholder="Secondary line"
+                    value={item.sub}
+                    onChange={(event) =>
+                      setTrustBarItems((current) =>
+                        current.map((entry, itemIndex) => (itemIndex === index ? { ...entry, sub: event.target.value } : entry)),
+                      )
+                    }
+                    className="border-0 bg-secondary"
+                  />
+                </div>
+              ))}
             </div>
             <Button className="mt-4 gap-2 gradient-primary text-primary-foreground" onClick={() => setBannerSaveOpen(true)}>
               <Save className="h-4 w-4" />

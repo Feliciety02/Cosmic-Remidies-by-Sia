@@ -3,13 +3,13 @@ import Link from "next/link";
 import { ArrowRight, BookOpen, Download, Shield, Sparkles, Star } from "lucide-react";
 import Footer from "@/components/Footer";
 import HomeAuthModal from "@/components/HomeAuthModal";
+import HomeTestimonials from "@/components/HomeTestimonials";
 import LeadCaptureForm from "@/components/LeadCaptureForm";
 import Navbar from "@/components/Navbar";
 import ProductCard from "@/components/ProductCard";
-import TestimonialCard from "@/components/TestimonialCard";
 import TrustBar from "@/components/TrustBar";
 import type { HomepageContent } from "@/content/homepage-content";
-import { products, testimonials } from "@/data/products";
+import { products } from "@/data/products";
 import { getHomepageContent } from "@/lib/homepage-content-store";
 import { buildAuthHref, buildMetadata } from "@/lib/site";
 
@@ -275,20 +275,11 @@ const HomePage = async ({ initialAuthMode, initialAuthError }: HomePageProps) =>
       <Benefits content={content.benefits} />
       <HowItWorks content={content.howItWorks} />
 
-      <section className="bg-[linear-gradient(180deg,#f6f9fc_0%,#fbfcfe_100%)] py-16 md:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className={sectionHeading}>
-            <p className={sectionEyebrow}>{content.stories.eyebrow}</p>
-            <h2 className={sectionTitle}>{content.stories.title}</h2>
-            <p className={sectionDescription}>{content.stories.description}</p>
-          </div>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {testimonials.slice(0, 6).map((testimonial) => (
-              <TestimonialCard key={testimonial.name} {...testimonial} />
-            ))}
-          </div>
-        </div>
-      </section>
+      <HomeTestimonials
+        eyebrow={content.stories.eyebrow}
+        title={content.stories.title}
+        description={content.stories.description}
+      />
 
       <EmailCapture content={content.leadCapture} />
       <FinalCta content={content.finalCta} />

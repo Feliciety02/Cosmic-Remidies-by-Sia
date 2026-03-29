@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
 import { CreditCard, Globe, Palette, Save, Shield } from "lucide-react";
@@ -14,13 +14,47 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  ADMIN_SETTINGS_STORAGE_KEY,
+  ADMIN_USERS_STORAGE_KEY,
+  initialAdminUsers,
+  initialSettings,
+  readAdminSettings,
+  readAdminUsers,
+  type AdminStoreSettings,
+  type AdminUserRecord,
+} from "@/lib/admin-store";
 
 const SettingsPage = () => {
   const [generalSaveOpen, setGeneralSaveOpen] = useState(false);
   const [brandingOpen, setBrandingOpen] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [logoFileName, setLogoFileName] = useState("brandmark-v2.svg");
+  const [settings, setSettings] = useState<AdminStoreSettings>(initialSettings);
+  const [adminUsers, setAdminUsers] = useState<AdminUserRecord[]>(initialAdminUsers);
+  const [isHydrated, setIsHydrated] = useState(false);
   const [inviteForm, setInviteForm] = useState({ name: "", email: "", role: "Editor" });
+
+  useEffect(() => {
+    setSettings(readAdminSettings(window.localStorage.getItem(ADMIN_SETTINGS_STORAGE_KEY)));
+    setAdminUsers(readAdminUsers(window.localStorage.getItem(ADMIN_USERS_STORAGE_KEY)));
+    setIsHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
+
+    window.localStorage.setItem(ADMIN_SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+  }, [isHydrated, settings]);
+
+  useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
+
+    window.localStorage.setItem(ADMIN_USERS_STORAGE_KEY, JSON.stringify(adminUsers));
+  }, [adminUsers, isHydrated]);
 
   const saveGeneralSettings = () => {
     toast.success("Store settings saved.");
@@ -28,7 +62,7 @@ const SettingsPage = () => {
   };
 
   const uploadLogo = () => {
-    toast.success(`Logo upload queued for ${logoFileName}.`);
+    toast.success(`Branding updated with ${settings.branding.logoFileName}.`);
     setBrandingOpen(false);
   };
 
@@ -38,6 +72,10 @@ const SettingsPage = () => {
       return;
     }
 
+    setAdminUsers((current) => [
+      { name: inviteForm.name.trim(), email: inviteForm.email.trim(), role: inviteForm.role, status: "Invited" },
+      ...current.filter((user) => user.email !== inviteForm.email.trim()),
+    ]);
     toast.success(`Invitation prepared for ${inviteForm.email}.`);
     setInviteOpen(false);
     setInviteForm({ name: "", email: "", role: "Editor" });
@@ -74,14 +112,30 @@ const SettingsPage = () => {
                 <p className="font-medium">Paddle</p>
                 <p className="text-sm text-muted-foreground">Accept payments worldwide</p>
               </div>
-              <Switch defaultChecked />
+              <Switch
+                checked={settings.paymentProviders.paddleEnabled}
+                onCheckedChange={(checked) =>
+                  setSettings((current) => ({
+                    ...current,
+                    paymentProviders: { ...current.paymentProviders, paddleEnabled: checked },
+                  }))
+                }
+              />
             </div>
             <div className="flex items-center justify-between rounded-xl bg-secondary p-4">
               <div>
                 <p className="font-medium">PayPal</p>
                 <p className="text-sm text-muted-foreground">Alternative payment method</p>
               </div>
-              <Switch />
+              <Switch
+                checked={settings.paymentProviders.paypalEnabled}
+                onCheckedChange={(checked) =>
+                  setSettings((current) => ({
+                    ...current,
+                    paymentProviders: { ...current.paymentProviders, paypalEnabled: checked },
+                  }))
+                }
+              />
             </div>
           </div>
         </Card>
@@ -90,7 +144,15 @@ const SettingsPage = () => {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-sm font-medium">Default Currency</label>
-              <Select defaultValue="usd">
+              <Select
+                value={settings.taxAndCurrency.currency}
+                onValueChange={(value) =>
+                  setSettings((current) => ({
+                    ...current,
+                    taxAndCurrency: { ...current.taxAndCurrency, currency: value as AdminStoreSettings["taxAndCurrency"]["currency"] },
+                  }))
+                }
+              >
                 <SelectTrigger className="border-0 bg-secondary"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="usd">USD ($)</SelectItem>
@@ -105,7 +167,15 @@ const SettingsPage = () => {
                 <p className="text-sm font-medium">Auto-calculate tax</p>
                 <p className="text-xs text-muted-foreground">Based on customer location</p>
               </div>
-              <Switch />
+              <Switch
+                checked={settings.taxAndCurrency.autoTax}
+                onCheckedChange={(checked) =>
+                  setSettings((current) => ({
+                    ...current,
+                    taxAndCurrency: { ...current.taxAndCurrency, autoTax: checked },
+                  }))
+                }
+              />
             </div>
           </div>
         </Card>
@@ -117,19 +187,60 @@ const SettingsPage = () => {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label htmlFor="store-name" className="mb-1.5 block text-sm font-medium">Store Name</label>
-              <Input id="store-name" name="storeName" defaultValue="Cosmic Remedies by Sia" className="border-0 bg-secondary" />
+              <Input
+                id="store-name"
+                name="storeName"
+                value={settings.general.storeName}
+                onChange={(event) =>
+                  setSettings((current) => ({
+                    ...current,
+                    general: { ...current.general, storeName: event.target.value },
+                  }))
+                }
+                className="border-0 bg-secondary"
+              />
             </div>
             <div>
               <label htmlFor="contact-email" className="mb-1.5 block text-sm font-medium">Contact Email</label>
-              <Input id="contact-email" name="contactEmail" defaultValue="hello@cosmicremedies.com" className="border-0 bg-secondary" />
+              <Input
+                id="contact-email"
+                name="contactEmail"
+                value={settings.general.contactEmail}
+                onChange={(event) =>
+                  setSettings((current) => ({
+                    ...current,
+                    general: { ...current.general, contactEmail: event.target.value },
+                  }))
+                }
+                className="border-0 bg-secondary"
+              />
             </div>
             <div>
               <label htmlFor="store-url" className="mb-1.5 block text-sm font-medium">Store URL</label>
-              <Input id="store-url" name="storeUrl" defaultValue="https://cosmicremediesbysia.com" className="border-0 bg-secondary" />
+              <Input
+                id="store-url"
+                name="storeUrl"
+                value={settings.general.storeUrl}
+                onChange={(event) =>
+                  setSettings((current) => ({
+                    ...current,
+                    general: { ...current.general, storeUrl: event.target.value },
+                  }))
+                }
+                className="border-0 bg-secondary"
+              />
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium">Timezone</label>
-              <Select defaultValue="ist">
+              <Select
+                value={settings.general.timezone}
+                onValueChange={(value) =>
+                  setSettings((current) => ({
+                    ...current,
+                    general: { ...current.general, timezone: value as AdminStoreSettings["general"]["timezone"] },
+                  }))
+                }
+              >
                 <SelectTrigger className="border-0 bg-secondary"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ist">IST (UTC+5:30)</SelectItem>
@@ -162,14 +273,36 @@ const SettingsPage = () => {
                 <label htmlFor="primary-color" className="mb-1.5 block text-sm font-medium">Primary Color</label>
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-lg gradient-primary" />
-                  <Input id="primary-color" name="primaryColor" defaultValue="#4d9e8e" className="border-0 bg-secondary" />
+                  <Input
+                    id="primary-color"
+                    name="primaryColor"
+                    value={settings.branding.primaryColor}
+                    onChange={(event) =>
+                      setSettings((current) => ({
+                        ...current,
+                        branding: { ...current.branding, primaryColor: event.target.value },
+                      }))
+                    }
+                    className="border-0 bg-secondary"
+                  />
                 </div>
               </div>
               <div>
                 <label htmlFor="accent-color" className="mb-1.5 block text-sm font-medium">Accent Color</label>
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-lg gradient-gold" />
-                  <Input id="accent-color" name="accentColor" defaultValue="#c5973e" className="border-0 bg-secondary" />
+                  <Input
+                    id="accent-color"
+                    name="accentColor"
+                    value={settings.branding.accentColor}
+                    onChange={(event) =>
+                      setSettings((current) => ({
+                        ...current,
+                        branding: { ...current.branding, accentColor: event.target.value },
+                      }))
+                    }
+                    className="border-0 bg-secondary"
+                  />
                 </div>
               </div>
             </div>
@@ -184,10 +317,7 @@ const SettingsPage = () => {
             <Button className="gradient-primary text-primary-foreground" size="sm" onClick={() => setInviteOpen(true)}>Invite User</Button>
           </div>
           <div className="space-y-3">
-            {[
-              { name: "Sia", email: "sia@cosmicremedies.com", role: "Owner" },
-              { name: "Assistant", email: "assistant@cosmicremedies.com", role: "Editor" },
-            ].map((user) => (
+            {adminUsers.map((user) => (
               <div key={user.email} className="flex items-center justify-between rounded-xl bg-secondary p-4">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full gradient-primary font-semibold text-primary-foreground">
@@ -198,7 +328,10 @@ const SettingsPage = () => {
                     <p className="text-sm text-muted-foreground">{user.email}</p>
                   </div>
                 </div>
-                <span className="text-sm font-medium text-primary">{user.role}</span>
+                <div className="text-right">
+                  <p className="text-sm font-medium text-primary">{user.role}</p>
+                  <p className="text-xs text-muted-foreground">{user.status}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -230,8 +363,13 @@ const SettingsPage = () => {
           <Label htmlFor="logo-file-name">Asset file name</Label>
           <Input
             id="logo-file-name"
-            value={logoFileName}
-            onChange={(event) => setLogoFileName(event.target.value)}
+            value={settings.branding.logoFileName}
+            onChange={(event) =>
+              setSettings((current) => ({
+                ...current,
+                branding: { ...current.branding, logoFileName: event.target.value },
+              }))
+            }
             placeholder="brandmark-v2.svg"
           />
         </div>

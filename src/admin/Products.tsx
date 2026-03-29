@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Download, Edit, Eye, Layers3, MoreHorizontal, Percent, Plus, Search, SlidersHorizontal, Ticket, Trash2 } from "lucide-react";
@@ -18,43 +18,16 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { products as storefrontProducts } from "@/data/products";
-
-const mapBadgeToAdminLabel = (badge?: string) => {
-  switch (badge) {
-    case "Bestseller":
-      return "Best Seller";
-    case "Popular":
-      return "Featured";
-    case "Seasonal":
-      return "New";
-    default:
-      return badge ?? null;
-  }
-};
-
-const initialProducts: EditableProduct[] = storefrontProducts.map((product, index) => {
-  const visibility: EditableProduct["visibility"] = index < 14 ? "Active" : index < 18 ? "Draft" : "Hidden";
-  const labels = [mapBadgeToAdminLabel(product.badge), index < 6 ? "Featured" : null].filter(Boolean) as string[];
-
-  return {
-    id: index + 1,
-    title: product.title,
-    slug: product.id,
-    price: product.price,
-    compareAtPrice: product.originalPrice ?? null,
-    category: product.category,
-    status: visibility,
-    visibility,
-    description: product.description,
-    coverAsset: `${product.id}-cover.webp`,
-    pdfAsset: `${product.id}.pdf`,
-    labels,
-    featured: index < 6,
-    downloads: Math.max(18, 420 - index * 17),
-    sales: Math.max(9, 160 - index * 6),
-  };
-});
+import {
+  ADMIN_BUNDLES_STORAGE_KEY,
+  ADMIN_DISCOUNTS_STORAGE_KEY,
+  ADMIN_PRODUCTS_STORAGE_KEY,
+  initialBundles,
+  initialDiscounts,
+  readAdminBundles,
+  readAdminDiscounts,
+  readAdminProducts,
+} from "@/lib/admin-store";
 
 interface DiscountCode {
   id: number;
@@ -80,61 +53,12 @@ interface BundleOffer {
   description: string;
 }
 
-const initialDiscounts: DiscountCode[] = [
-  {
-    id: 1,
-    code: "WELCOME10",
-    type: "percentage",
-    amount: 10,
-    appliesTo: "all",
-    productIds: [],
-    usageLimit: 500,
-    expiryDate: "2026-12-31",
-    status: "Active",
-    redemptions: 82,
-  },
-  {
-    id: 2,
-    code: "BUNDLE20",
-    type: "fixed",
-    amount: 20,
-    appliesTo: "specific",
-    productIds: [2],
-    usageLimit: 100,
-    expiryDate: "2026-06-30",
-    status: "Draft",
-    redemptions: 0,
-  },
-];
-
-const initialBundles: BundleOffer[] = [
-  {
-    id: 1,
-    title: "Healing Starter Bundle",
-    slug: "healing-starter-bundle",
-    productIds: [2, 5],
-    bundlePrice: 99,
-    compareAtPrice: 124,
-    status: "Active",
-    description: "Combine the core healing guides into one higher-value starter offer.",
-  },
-  {
-    id: 2,
-    title: "Mindfulness Essentials Pack",
-    slug: "mindfulness-essentials-pack",
-    productIds: [3, 4],
-    bundlePrice: 69,
-    compareAtPrice: 84,
-    status: "Draft",
-    description: "Draft bundle for meditation and numerology buyers.",
-  },
-];
-
 const Products = () => {
   const router = useRouter();
-  const [products, setProducts] = useState(initialProducts);
+  const [products, setProducts] = useState<EditableProduct[]>([]);
   const [discounts, setDiscounts] = useState(initialDiscounts);
   const [bundles, setBundles] = useState(initialBundles);
+  const [isHydrated, setIsHydrated] = useState(false);
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<"All" | "Active" | "Draft" | "Hidden">("All");
   const [catalogPage, setCatalogPage] = useState(1);
@@ -162,6 +86,41 @@ const Products = () => {
     status: "Draft" as BundleOffer["status"],
     description: "",
   });
+
+  useEffect(() => {
+    const nextProducts = readAdminProducts(window.localStorage.getItem(ADMIN_PRODUCTS_STORAGE_KEY));
+    const nextDiscounts = readAdminDiscounts(window.localStorage.getItem(ADMIN_DISCOUNTS_STORAGE_KEY)) as DiscountCode[];
+    const nextBundles = readAdminBundles(window.localStorage.getItem(ADMIN_BUNDLES_STORAGE_KEY)) as BundleOffer[];
+
+    setProducts(nextProducts);
+    setDiscounts(nextDiscounts);
+    setBundles(nextBundles);
+    setIsHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
+
+    window.localStorage.setItem(ADMIN_PRODUCTS_STORAGE_KEY, JSON.stringify(products));
+  }, [isHydrated, products]);
+
+  useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
+
+    window.localStorage.setItem(ADMIN_DISCOUNTS_STORAGE_KEY, JSON.stringify(discounts));
+  }, [discounts, isHydrated]);
+
+  useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
+
+    window.localStorage.setItem(ADMIN_BUNDLES_STORAGE_KEY, JSON.stringify(bundles));
+  }, [bundles, isHydrated]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
@@ -275,13 +234,40 @@ const Products = () => {
   };
 
   const exportCatalog = () => {
-    const labels = {
-      visible: "the current filtered catalog",
-      all: "the full product catalog",
-      featured: "featured products",
-    };
+    const exportRows =
+      exportSelection === "all"
+        ? products
+        : exportSelection === "featured"
+          ? products.filter((product) => product.featured)
+          : filteredProducts;
 
-    toast.success(`Prepared export for ${labels[exportSelection]}.`);
+    const csv = [
+      ["Title", "Slug", "Category", "Price", "CompareAtPrice", "Visibility", "Featured", "Sales", "Downloads", "Labels"].join(","),
+      ...exportRows.map((product) =>
+        [
+          `"${product.title.replaceAll('"', '""')}"`,
+          product.slug,
+          `"${product.category.replaceAll('"', '""')}"`,
+          product.price,
+          product.compareAtPrice ?? "",
+          product.visibility,
+          product.featured ? "Yes" : "No",
+          product.sales,
+          product.downloads,
+          `"${product.labels.join(" | ").replaceAll('"', '""')}"`,
+        ].join(","),
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `catalog-${exportSelection}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    toast.success(`Downloaded ${exportRows.length} catalog rows.`);
     setExportOpen(false);
   };
 

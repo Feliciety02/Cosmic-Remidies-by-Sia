@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Download, Filter, Search } from "lucide-react";
@@ -12,20 +12,15 @@ import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-const orders = [
-  { id: "#CR-1042", slug: "CR-1042", customer: "Priya Sharma", email: "priya@email.com", product: "Vedic Astrology Guide", amount: "$49.99", status: "Completed", date: "Mar 24, 2026", payment: "Paddle" },
-  { id: "#CR-1041", slug: "CR-1041", customer: "Amit Patel", email: "amit@email.com", product: "Cosmic Healing Bundle", amount: "$89.99", status: "Completed", date: "Mar 24, 2026", payment: "PayPal" },
-  { id: "#CR-1040", slug: "CR-1040", customer: "Sarah Johnson", email: "sarah@email.com", product: "Chakra Meditation PDF", amount: "$24.99", status: "Pending", date: "Mar 23, 2026", payment: "Paddle" },
-  { id: "#CR-1039", slug: "CR-1039", customer: "Ravi Kumar", email: "ravi@email.com", product: "Numerology Masterclass", amount: "$59.99", status: "Completed", date: "Mar 23, 2026", payment: "Paddle" },
-  { id: "#CR-1038", slug: "CR-1038", customer: "Maya Chen", email: "maya@email.com", product: "Crystal Healing Guide", amount: "$34.99", status: "Refunded", date: "Mar 22, 2026", payment: "PayPal" },
-  { id: "#CR-1037", slug: "CR-1037", customer: "David Wilson", email: "david@email.com", product: "Vastu Shastra Essentials", amount: "$39.99", status: "Completed", date: "Mar 22, 2026", payment: "Paddle" },
-  { id: "#CR-1036", slug: "CR-1036", customer: "Ananya Gupta", email: "ananya@email.com", product: "Vedic Astrology Guide", amount: "$49.99", status: "Completed", date: "Mar 21, 2026", payment: "Paddle" },
-  { id: "#CR-1035", slug: "CR-1035", customer: "James Lee", email: "james@email.com", product: "Cosmic Healing Bundle", amount: "$89.99", status: "Pending", date: "Mar 21, 2026", payment: "PayPal" },
-];
+import {
+  ADMIN_ORDERS_STORAGE_KEY,
+  readAdminOrders,
+} from "@/lib/admin-store";
+import { CHECKOUT_ORDER_HISTORY_STORAGE_KEY, readOrderHistory } from "@/lib/checkout";
 
 const Orders = () => {
   const router = useRouter();
+  const [orders, setOrders] = useState<ReturnType<typeof readAdminOrders>>([]);
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
   const [page, setPage] = useState(1);
@@ -33,6 +28,13 @@ const Orders = () => {
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [paymentFilter, setPaymentFilter] = useState("All");
   const [exportRange, setExportRange] = useState("current");
+
+  useEffect(() => {
+    const checkoutOrders = readOrderHistory(window.localStorage.getItem(CHECKOUT_ORDER_HISTORY_STORAGE_KEY));
+    const nextOrders = readAdminOrders(window.localStorage.getItem(ADMIN_ORDERS_STORAGE_KEY), checkoutOrders);
+    setOrders(nextOrders);
+    window.localStorage.setItem(ADMIN_ORDERS_STORAGE_KEY, JSON.stringify(nextOrders));
+  }, []);
 
   const filteredOrders = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -45,7 +47,7 @@ const Orders = () => {
         order.id.toLowerCase().includes(normalizedQuery) ||
         order.customer.toLowerCase().includes(normalizedQuery) ||
         order.email.toLowerCase().includes(normalizedQuery) ||
-        order.product.toLowerCase().includes(normalizedQuery);
+        order.items.some((item) => item.name.toLowerCase().includes(normalizedQuery));
 
       return matchesFilter && matchesPayment && matchesQuery;
     });
@@ -61,13 +63,40 @@ const Orders = () => {
   };
 
   const exportOrders = () => {
-    const exportLabels: Record<string, string> = {
-      current: "the current filtered view",
-      month: "the last 30 days",
-      all: "all orders",
-    };
+    const last30Days = new Date();
+    last30Days.setDate(last30Days.getDate() - 30);
+    const exportRows =
+      exportRange === "all"
+        ? orders
+        : exportRange === "month"
+          ? orders.filter((order) => new Date(order.date).getTime() >= last30Days.getTime())
+          : filteredOrders;
 
-    toast.success(`Prepared order export for ${exportLabels[exportRange]}.`);
+    const csv = [
+      ["Order", "Customer", "Email", "Items", "Amount", "Status", "Payment", "Date"].join(","),
+      ...exportRows.map((order) =>
+        [
+          order.id,
+          `"${order.customer.replaceAll('"', '""')}"`,
+          order.email,
+          `"${order.items.map((item) => `${item.name} x${item.qty}`).join(" | ").replaceAll('"', '""')}"`,
+          order.total,
+          order.status,
+          order.payment,
+          `"${order.date}"`,
+        ].join(","),
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `orders-${exportRange}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    toast.success(`Downloaded ${exportRows.length} order rows.`);
     setExportDialogOpen(false);
   };
 
@@ -139,7 +168,7 @@ const Orders = () => {
                 <tr className="bg-slate-50/80 text-muted-foreground">
                   <th className="px-4 py-3 text-left font-medium">Order</th>
                   <th className="px-4 py-3 text-left font-medium">Customer</th>
-                  <th className="hidden px-4 py-3 text-left font-medium lg:table-cell">Product</th>
+                  <th className="hidden px-4 py-3 text-left font-medium lg:table-cell">Items</th>
                   <th className="px-4 py-3 text-left font-medium">Amount</th>
                   <th className="px-4 py-3 text-left font-medium">Status</th>
                   <th className="hidden px-4 py-3 text-left font-medium md:table-cell">Payment</th>
@@ -160,8 +189,8 @@ const Orders = () => {
                         <p className="text-xs text-muted-foreground">{order.email}</p>
                       </div>
                     </td>
-                    <td className="hidden px-4 py-3.5 text-muted-foreground lg:table-cell">{order.product}</td>
-                    <td className="px-4 py-3.5 font-semibold">{order.amount}</td>
+                    <td className="hidden px-4 py-3.5 text-muted-foreground lg:table-cell">{order.items.map((item) => item.name).join(", ")}</td>
+                    <td className="px-4 py-3.5 font-semibold">{order.total}</td>
                     <td className="px-4 py-3.5"><StatusBadge status={order.status} /></td>
                     <td className="hidden px-4 py-3.5 text-muted-foreground md:table-cell">{order.payment}</td>
                     <td className="hidden px-4 py-3.5 text-muted-foreground sm:table-cell">{order.date}</td>

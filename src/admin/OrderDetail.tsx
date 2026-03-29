@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -21,109 +21,8 @@ import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-
-const orderData: Record<
-  string,
-  {
-    id: string;
-    customer: string;
-    email: string;
-    phone: string;
-    address: string;
-    items: { name: string; qty: number; price: string }[];
-    subtotal: string;
-    tax: string;
-    total: string;
-    status: string;
-    payment: string;
-    paymentId: string;
-    date: string;
-    timeline: { event: string; date: string; icon: string }[];
-  }
-> = {
-  "CR-1042": {
-    id: "#CR-1042",
-    customer: "Priya Sharma",
-    email: "priya@email.com",
-    phone: "+91 98765 43210",
-    address: "Mumbai, Maharashtra, India",
-    items: [{ name: "Vedic Astrology Guide", qty: 1, price: "$49.99" }],
-    subtotal: "$49.99",
-    tax: "$0.00",
-    total: "$49.99",
-    status: "Completed",
-    payment: "Paddle",
-    paymentId: "txn_3a8f2k9x",
-    date: "Mar 24, 2026",
-    timeline: [
-      { event: "Order placed", date: "Mar 24, 10:23 AM", icon: "cart" },
-      { event: "Payment confirmed", date: "Mar 24, 10:24 AM", icon: "payment" },
-      { event: "PDF delivered via email", date: "Mar 24, 10:25 AM", icon: "delivered" },
-      { event: "Download link accessed", date: "Mar 24, 11:02 AM", icon: "download" },
-    ],
-  },
-  "CR-1041": {
-    id: "#CR-1041",
-    customer: "Amit Patel",
-    email: "amit@email.com",
-    phone: "+91 91234 56789",
-    address: "Ahmedabad, Gujarat, India",
-    items: [{ name: "Cosmic Healing Bundle", qty: 1, price: "$89.99" }],
-    subtotal: "$89.99",
-    tax: "$0.00",
-    total: "$89.99",
-    status: "Completed",
-    payment: "PayPal",
-    paymentId: "pp_9x2k4m1b",
-    date: "Mar 24, 2026",
-    timeline: [
-      { event: "Order placed", date: "Mar 24, 09:15 AM", icon: "cart" },
-      { event: "Payment confirmed", date: "Mar 24, 09:16 AM", icon: "payment" },
-      { event: "PDF delivered via email", date: "Mar 24, 09:17 AM", icon: "delivered" },
-    ],
-  },
-  "CR-1040": {
-    id: "#CR-1040",
-    customer: "Sarah Johnson",
-    email: "sarah@email.com",
-    phone: "+1 555 234 5678",
-    address: "Austin, TX, USA",
-    items: [{ name: "Chakra Meditation PDF", qty: 1, price: "$24.99" }],
-    subtotal: "$24.99",
-    tax: "$0.00",
-    total: "$24.99",
-    status: "Pending",
-    payment: "Paddle",
-    paymentId: "txn_7b3d5f2a",
-    date: "Mar 23, 2026",
-    timeline: [
-      { event: "Order placed", date: "Mar 23, 03:45 PM", icon: "cart" },
-      { event: "Awaiting payment confirmation", date: "Mar 23, 03:45 PM", icon: "pending" },
-    ],
-  },
-  "CR-1038": {
-    id: "#CR-1038",
-    customer: "Maya Chen",
-    email: "maya@email.com",
-    phone: "+1 555 876 5432",
-    address: "San Francisco, CA, USA",
-    items: [{ name: "Crystal Healing Guide", qty: 1, price: "$34.99" }],
-    subtotal: "$34.99",
-    tax: "$0.00",
-    total: "$34.99",
-    status: "Refunded",
-    payment: "PayPal",
-    paymentId: "pp_4n8m2x1c",
-    date: "Mar 22, 2026",
-    timeline: [
-      { event: "Order placed", date: "Mar 22, 11:30 AM", icon: "cart" },
-      { event: "Payment confirmed", date: "Mar 22, 11:31 AM", icon: "payment" },
-      { event: "PDF delivered via email", date: "Mar 22, 11:32 AM", icon: "delivered" },
-      { event: "Refund requested", date: "Mar 22, 04:15 PM", icon: "refund" },
-      { event: "Refund processed", date: "Mar 23, 09:00 AM", icon: "refund-done" },
-    ],
-  },
-};
+import { ADMIN_ORDERS_STORAGE_KEY, readAdminOrders, type AdminOrderRecord } from "@/lib/admin-store";
+import { CHECKOUT_ORDER_HISTORY_STORAGE_KEY, readOrderHistory } from "@/lib/checkout";
 
 const timelineIconMap: Record<string, ReactNode> = {
   cart: <CheckCircle2 className="h-4 w-4 text-primary" />,
@@ -141,9 +40,31 @@ const OrderDetail = () => {
   const [refundReason, setRefundReason] = useState("");
   const [refundOpen, setRefundOpen] = useState(false);
   const [invoiceOpen, setInvoiceOpen] = useState(false);
+  const [orders, setOrders] = useState<AdminOrderRecord[]>([]);
   const orderId = params?.orderId;
   const resolvedOrderId = Array.isArray(orderId) ? orderId[0] : orderId;
-  const order = orderData[resolvedOrderId ?? ""];
+
+  useEffect(() => {
+    const checkoutOrders = readOrderHistory(window.localStorage.getItem(CHECKOUT_ORDER_HISTORY_STORAGE_KEY));
+    const nextOrders = readAdminOrders(window.localStorage.getItem(ADMIN_ORDERS_STORAGE_KEY), checkoutOrders);
+    setOrders(nextOrders);
+    window.localStorage.setItem(ADMIN_ORDERS_STORAGE_KEY, JSON.stringify(nextOrders));
+  }, []);
+
+  const order = useMemo(() => orders.find((entry) => entry.slug === (resolvedOrderId ?? "")), [orders, resolvedOrderId]);
+
+  const persistOrders = (nextOrders: AdminOrderRecord[]) => {
+    setOrders(nextOrders);
+    window.localStorage.setItem(ADMIN_ORDERS_STORAGE_KEY, JSON.stringify(nextOrders));
+  };
+
+  if (orders.length === 0) {
+    return (
+      <AdminLayout title="Loading Order" subtitle="">
+        <div className="py-20 text-center text-muted-foreground">Loading order details...</div>
+      </AdminLayout>
+    );
+  }
 
   if (!order) {
     return (
@@ -160,17 +81,87 @@ const OrderDetail = () => {
   }
 
   const handleRefund = () => {
-    toast.success(`Refund initiated for ${order.id}${refundReason ? "." : "."}`);
+    const timestamp = new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    }).format(new Date());
+
+    const nextOrders = orders.map((entry) =>
+      entry.slug === order.slug
+        ? {
+            ...entry,
+            status: "Refunded",
+            timeline: [
+              { event: refundReason ? `Refund requested: ${refundReason}` : "Refund requested", date: timestamp, icon: "refund" },
+              { event: "Refund processed", date: timestamp, icon: "refund-done" },
+              ...entry.timeline,
+            ],
+          }
+        : entry,
+    );
+
+    persistOrders(nextOrders);
+    toast.success(`Refund completed for ${order.id}.`);
     setRefundOpen(false);
     setRefundReason("");
   };
 
   const handleResendEmail = () => {
+    const timestamp = new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    }).format(new Date());
+
+    persistOrders(
+      orders.map((entry) =>
+        entry.slug === order.slug
+          ? {
+              ...entry,
+              timeline: [{ event: "Download link resent", date: timestamp, icon: "delivered" }, ...entry.timeline],
+            }
+          : entry,
+      ),
+    );
     toast.success(`Download link resent to ${order.email}`);
   };
 
   const handleInvoice = () => {
-    toast.success(`Invoice prepared for ${order.id}`);
+    const invoiceLines = [
+      `Invoice ${order.id}`,
+      `Customer: ${order.customer}`,
+      `Email: ${order.email}`,
+      `Date: ${order.date}`,
+      "",
+      ...order.items.map((item) => `${item.name} x${item.qty} - ${item.price}`),
+      "",
+      `Subtotal: ${order.subtotal}`,
+      `Tax: ${order.tax}`,
+      `Total: ${order.total}`,
+    ].join("\n");
+
+    const blob = new Blob([invoiceLines], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${order.slug}-invoice.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    persistOrders(
+      orders.map((entry) =>
+        entry.slug === order.slug
+          ? {
+              ...entry,
+              timeline: [{ event: "Invoice generated", date: order.date, icon: "download" }, ...entry.timeline],
+            }
+          : entry,
+      ),
+    );
+    toast.success(`Invoice downloaded for ${order.id}`);
     setInvoiceOpen(false);
   };
 
