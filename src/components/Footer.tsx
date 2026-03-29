@@ -56,7 +56,7 @@ const Footer = () => (
             />
             <Button
               type="button"
-              className="h-11 rounded-full bg-[linear-gradient(135deg,#c38a43_0%,#a96d2c_100%)] px-6 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(169,109,44,0.2)] hover:brightness-105"
+              className="h-11 rounded-full bg-[linear-gradient(135deg,#4090df_0%,#245ea7_100%)] px-6 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(36,94,167,0.22)] hover:brightness-105"
             >
               Subscribe
             </Button>

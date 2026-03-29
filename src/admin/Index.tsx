@@ -1,7 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, DollarSign, Download, TrendingUp, Users } from "lucide-react";
+import {
+  ArrowUpRight,
+  DollarSign,
+  Download,
+  Mail,
+  Package,
+  TrendingUp,
+  Users,
+} from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { MetricCard } from "@/components/admin/MetricCard";
@@ -35,26 +43,84 @@ const topProducts = [
   { name: products[4].title, sales: 118, revenue: "$2,478" },
 ];
 
+const heroHighlights = [
+  { label: "Revenue this week", value: "$6,480", note: "+18% vs last week" },
+  { label: "Orders cleared", value: "38", note: "6 awaiting payment" },
+  { label: "Email capture rate", value: "7.1%", note: "Guide opt-in is outperforming shop" },
+];
+
 const Dashboard = () => (
   <AdminLayout title="Dashboard" subtitle="Welcome back, Sia">
     <div className="space-y-8">
-      <section className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
+      <section className="grid gap-6 xl:grid-cols-[1.65fr_0.55fr]">
         <Card className="overflow-hidden rounded-[1.75rem] border-white/70 bg-[linear-gradient(135deg,rgba(41,92,145,0.96)_0%,rgba(65,124,177,0.94)_42%,rgba(215,235,248,0.94)_100%)] p-7 text-white shadow-[0_28px_90px_rgba(45,90,138,0.24)]">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-2xl">
-              <h2 className="text-3xl font-bold tracking-tight md:text-4xl">A cleaner control room for products, orders, and growth.</h2>
-              <p className="mt-4 max-w-xl text-sm leading-6 text-white/80 md:text-base">
-                Monitor sales trends, surface the strongest offers, and jump directly into the areas that need attention.
-              </p>
+          <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+              <div className="max-w-2xl">
+                <div className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-white/80">
+                  Weekly snapshot
+                </div>
+                <h2 className="mt-4 text-3xl font-bold tracking-tight md:text-4xl">
+                  A cleaner control room for products, orders, and growth.
+                </h2>
+                <p className="mt-4 max-w-xl text-sm leading-6 text-white/80 md:text-base">
+                  Monitor sales trends, surface the strongest offers, and jump directly into the areas that need attention.
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Button asChild variant="secondary" className="rounded-xl border-0 bg-white text-slate-800 hover:bg-white/90">
+                  <Link href="/admin/orders">Review Orders</Link>
+                </Button>
+                <Button asChild variant="ghost" className="rounded-xl border border-white/25 bg-white/10 text-white hover:bg-white/15">
+                  <Link href="/admin/products">Manage Products</Link>
+                </Button>
+              </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Button asChild variant="secondary" className="rounded-xl border-0 bg-white text-slate-800 hover:bg-white/90">
-                <Link href="/admin/orders">Review Orders</Link>
-              </Button>
-              <Button asChild variant="ghost" className="rounded-xl border border-white/25 bg-white/10 text-white hover:bg-white/15">
-                <Link href="/admin/products">Manage Products</Link>
-              </Button>
+            <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
+              <div className="grid gap-4 md:grid-cols-3">
+                {heroHighlights.map((item) => (
+                  <div key={item.label} className="rounded-[1.35rem] border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/65">{item.label}</p>
+                    <p className="mt-3 text-2xl font-semibold tracking-tight text-white">{item.value}</p>
+                    <p className="mt-2 text-sm text-white/75">{item.note}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="rounded-[1.5rem] border border-white/15 bg-slate-950/10 p-5 backdrop-blur-sm">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/65">Best seller this week</p>
+                    <p className="mt-2 text-xl font-semibold text-white">{products[1].title}</p>
+                    <p className="mt-2 text-sm leading-6 text-white/75">
+                      Generated <span className="font-semibold text-white">$1,840</span> from 77 sales and is converting
+                      1.6x better than the shop average.
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-white/15 bg-white/10 px-3 py-2 text-right">
+                    <p className="text-xs uppercase tracking-[0.16em] text-white/60">Lift</p>
+                    <p className="text-2xl font-semibold text-white">+26%</p>
+                  </div>
+                </div>
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                    <div className="flex items-center gap-2 text-white">
+                      <Mail className="h-4 w-4" />
+                      <p className="text-sm font-medium">2 payments need follow-up</p>
+                    </div>
+                    <p className="mt-2 text-xs leading-5 text-white/70">Send reminders before noon to clear today&apos;s queue.</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                    <div className="flex items-center gap-2 text-white">
+                      <Package className="h-4 w-4" />
+                      <p className="text-sm font-medium">4 drafts still incomplete</p>
+                    </div>
+                    <p className="mt-2 text-xs leading-5 text-white/70">Add imagery and final copy before pushing them live.</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </Card>

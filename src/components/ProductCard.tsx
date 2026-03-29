@@ -9,9 +9,9 @@ type ProductCardProps = Pick<Product, "id" | "title" | "price" | "originalPrice"
 const ProductCard = ({ id, title, price, originalPrice, image, rating, badge }: ProductCardProps) => (
   <div className="flex h-full w-full flex-col overflow-hidden rounded-2xl border bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
     <Link href={`/product/${id}`} className="group block">
-      <div className="relative border-b bg-[linear-gradient(180deg,rgba(248,247,244,1)_0%,rgba(244,242,236,0.85)_100%)] px-5 py-6">
+      <div className="relative border-b bg-[linear-gradient(180deg,rgba(244,249,255,1)_0%,rgba(235,243,252,0.92)_100%)] px-5 py-6">
         {badge && (
-          <span className="absolute left-3 top-3 z-10 rounded-full bg-[linear-gradient(135deg,#c89446_0%,#a86c2b_100%)] px-3 py-1.5 text-xs font-bold text-white shadow-[0_8px_24px_rgba(168,108,43,0.28)]">
+          <span className="absolute left-3 top-3 z-10 rounded-full bg-[linear-gradient(135deg,#4c97e4_0%,#2a67b2_100%)] px-3 py-1.5 text-xs font-bold text-white shadow-[0_8px_24px_rgba(42,103,178,0.28)]">
             {badge}
           </span>
         )}

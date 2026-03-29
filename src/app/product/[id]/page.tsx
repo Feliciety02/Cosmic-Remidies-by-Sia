@@ -55,20 +55,18 @@ const ProductPage = ({ params }: ProductPageProps) => {
     <div className="min-h-screen">
       <Navbar />
       <div className="container mx-auto px-4 py-10">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-          <div>
-            <div className="overflow-hidden rounded-xl border bg-card">
-              <Image
-                src={product.image}
-                alt={product.title}
-                priority
-                className="aspect-[3/4] w-full object-cover"
-                sizes="(min-width: 1024px) 40vw, 100vw"
-              />
-            </div>
+        <div className="grid grid-cols-1 gap-10 lg:h-[calc(100vh-7rem)] lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-14">
+          <div className="lg:sticky lg:top-24 lg:flex lg:h-[calc(100vh-7rem)] lg:items-center">
+            <Image
+              src={product.image}
+              alt={product.title}
+              priority
+              className="mx-auto aspect-[3/4] max-h-[72vh] w-full object-contain lg:max-h-[calc(100vh-9rem)]"
+              sizes="(min-width: 1024px) 32vw, (min-width: 768px) 52vw, 92vw"
+            />
           </div>
 
-          <div>
+          <div className="lg:h-[calc(100vh-7rem)] lg:overflow-y-auto lg:pr-3">
             {product.badge && (
               <span className="mb-4 inline-block rounded-full bg-gradient-gold px-4 py-1.5 text-sm font-bold text-primary-foreground">
                 {product.badge}
