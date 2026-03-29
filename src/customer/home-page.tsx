@@ -257,9 +257,9 @@ const HomePage = async ({ initialAuthMode, initialAuthError }: HomePageProps) =>
             <p className="mx-auto max-w-md text-base leading-7 text-stone-500">{content.featured.description}</p>
           </div>
           <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-4">
-            {products.slice(0, 6).map((product) => (
-              <ProductCard key={product.id} {...product} />
-            ))}
+          {products.slice(0, 8).map((product) => (
+            <ProductCard key={product.id} {...product} />
+          ))}
           </div>
           <div className="mt-12 text-center">
             <Link
