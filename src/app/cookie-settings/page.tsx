@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import PrivacyPreferencesPanel from "@/components/PrivacyPreferencesPanel";
 import { buildMetadata } from "@/lib/site";
 
 export const metadata: Metadata = buildMetadata({
@@ -15,18 +16,19 @@ const CookieSettingsPage = () => (
     <main className="container mx-auto max-w-4xl px-4 py-16">
       <h1 className="mb-4 font-display text-3xl font-bold md:text-4xl">Cookie Settings</h1>
       <p className="mb-10 text-muted-foreground">
-        A consent management platform will appear here once the production CMP account is connected.
+        Manage analytics, personalization, and data-sharing preferences directly from this browser.
       </p>
 
-      <div className="space-y-6 text-sm leading-7 text-muted-foreground">
+      <PrivacyPreferencesPanel />
+
+      <div className="mt-10 space-y-6 text-sm leading-7 text-muted-foreground">
         <p>
-          The production storefront is intended to block analytics and advertising cookies until a visitor grants
-          consent. That final behavior depends on the CMP provider account, such as Termly or Cookiebot, being
-          connected in the deployment environment.
+          Strictly necessary cookies remain active so the storefront, cart, and account features continue to work. Other
+          categories can be turned on or off here.
         </p>
         <p>
-          Until that configuration is completed, use this page as the visible footer destination required by the PRD,
-          and finish the live consent integration before launch.
+          These controls are stored locally in your browser for this environment and act as the visible privacy center for
+          the storefront.
         </p>
       </div>
     </main>
