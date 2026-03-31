@@ -22,7 +22,7 @@ interface AuthLandingProps {
 const modeContent: Record<AuthMode, { title: string; description: string }> = {
   login: {
     title: "Sign in",
-    description: "Use your Gmail or email plus password to open either the customer area or the admin dashboard.",
+    description: "Use your Gmail or email plus password to sign in.",
   },
   create: {
     title: "Create account",
@@ -245,10 +245,10 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
 
       {mode === "login" ? (
         <div className="mt-7 space-y-4">
-          <form className="space-y-4" onSubmit={handleCustomerLogin} autoComplete="off" data-lpignore="true">
+          <form className="space-y-4" onSubmit={handleCustomerLogin}>
             <div className="space-y-2">
               <Label htmlFor="customer-login-email" className="text-[15px] font-medium text-stone-700">
-                Gmail / Email
+                Email
               </Label>
               <div className="relative">
                 <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
@@ -256,17 +256,9 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                   ref={customerEmailRef}
                   id="customer-login-email"
                   type="email"
-                  name="login_identifier"
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="none"
-                  spellCheck={false}
-                  data-form-type="other"
-                  data-lpignore="true"
-                  data-1p-ignore="true"
-                  data-bwignore="true"
+                  autoComplete="email"
                   placeholder="you@example.com"
-                  className="h-11 rounded-md border-amber-200 bg-amber-50/60 pl-11 pr-4 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
+                  className="h-11 rounded-md border-amber-200 bg-white pl-11 pr-4 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
                   value={customerLoginForm.email}
                   onChange={(event) => setCustomerLoginForm((current) => ({ ...current, email: event.target.value }))}
                   required
@@ -282,17 +274,9 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                 <Input
                   id="customer-login-password"
                   type={showCustomerPassword ? "text" : "password"}
-                  name="login_secret"
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="none"
-                  spellCheck={false}
-                  data-form-type="other"
-                  data-lpignore="true"
-                  data-1p-ignore="true"
-                  data-bwignore="true"
+                  autoComplete="current-password"
                   placeholder="Enter your password"
-                  className="h-11 rounded-md border-amber-200 bg-amber-50/60 pl-11 pr-11 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
+                  className="h-11 rounded-md border-amber-200 bg-white pl-11 pr-11 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
                   value={customerLoginForm.password}
                   onChange={(event) => setCustomerLoginForm((current) => ({ ...current, password: event.target.value }))}
                   required
@@ -323,7 +307,7 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
           </button>
 
           <div className="rounded-2xl border border-amber-200 bg-amber-50/70 px-4 py-3 text-xs text-stone-500">
-            Use the same form for the hardcoded customer or admin account. Google remains optional when configured.
+            Use your email and password here. Google remains optional when configured.
           </div>
 
           <p className="pt-2 text-center text-sm text-stone-500">
@@ -354,24 +338,16 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
             </div>
           </div>
 
-          <form className="space-y-4" onSubmit={handleCreateAccount} autoComplete="off" data-lpignore="true">
+          <form className="space-y-4" onSubmit={handleCreateAccount}>
             <div className="space-y-2">
               <Label htmlFor="create-name" className="text-[15px] font-medium text-stone-700">
                 Full name
               </Label>
               <Input
                 id="create-name"
-                name="signup_name"
-                autoComplete="off"
-                autoCorrect="off"
-                autoCapitalize="words"
-                spellCheck={false}
-                data-form-type="other"
-                data-lpignore="true"
-                data-1p-ignore="true"
-                data-bwignore="true"
+                autoComplete="name"
                 placeholder="Your name"
-                className="h-11 rounded-md border-amber-200 bg-amber-50/60 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
+                className="h-11 rounded-md border-amber-200 bg-white text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
                 value={createForm.name}
                 onChange={(event) => setCreateForm((current) => ({ ...current, name: event.target.value }))}
                 required
@@ -386,17 +362,9 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                 <Input
                   id="create-email"
                   type="email"
-                  name="signup_identifier"
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="none"
-                  spellCheck={false}
-                  data-form-type="other"
-                  data-lpignore="true"
-                  data-1p-ignore="true"
-                  data-bwignore="true"
+                  autoComplete="email"
                   placeholder="you@example.com"
-                  className="h-11 rounded-md border-amber-200 bg-amber-50/60 pl-11 pr-4 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
+                  className="h-11 rounded-md border-amber-200 bg-white pl-11 pr-4 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
                   value={createForm.email}
                   onChange={(event) => setCreateForm((current) => ({ ...current, email: event.target.value }))}
                   required
@@ -412,17 +380,9 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                 <Input
                   id="create-password"
                   type={showCreatePassword ? "text" : "password"}
-                  name="signup_secret"
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="none"
-                  spellCheck={false}
-                  data-form-type="other"
-                  data-lpignore="true"
-                  data-1p-ignore="true"
-                  data-bwignore="true"
+                  autoComplete="new-password"
                   placeholder="Create a password"
-                  className="h-11 rounded-md border-amber-200 bg-amber-50/60 pl-11 pr-11 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
+                  className="h-11 rounded-md border-amber-200 bg-white pl-11 pr-11 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
                   value={createForm.password}
                   onChange={(event) => setCreateForm((current) => ({ ...current, password: event.target.value }))}
                   required

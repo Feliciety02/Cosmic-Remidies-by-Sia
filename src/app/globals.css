@@ -58,13 +58,26 @@
     @apply border-border;
   }
 
-  input::-ms-reveal,
-  input::-ms-clear,
-  input::-webkit-credentials-auto-fill-button,
-  input::-webkit-contacts-auto-fill-button {
+  [data-lastpass-icon-root],
+  [data-lastpass-root],
+  iframe[src*="lastpass"],
+  div[id^="__lp"],
+  div[class*="lpinput"] {
     display: none !important;
     visibility: hidden !important;
     pointer-events: none !important;
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus {
+    -webkit-text-fill-color: hsl(var(--foreground)) !important;
+    -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+    box-shadow: 0 0 0 1000px #ffffff inset !important;
+    transition: background-color 9999s ease-in-out 0s;
   }
 
   html {
