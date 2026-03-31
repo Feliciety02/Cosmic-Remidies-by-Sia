@@ -22,7 +22,7 @@ interface AuthLandingProps {
 const modeContent: Record<AuthMode, { title: string; description: string }> = {
   login: {
     title: "Sign in",
-    description: "Customers can use email/password or Google. Admins still use the dedicated credentials form.",
+    description: "Use your Gmail or email plus password to open either the customer area or the admin dashboard.",
   },
   create: {
     title: "Create account",
@@ -44,15 +44,13 @@ const authErrorMessages: Record<string, string> = {
 
 const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) => {
   const router = useRouter();
-  const { user, isHydrated, loginCustomer, loginAdmin, loginWithGoogle, createAccount, logout } = useAuth();
+  const { user, isHydrated, loginCustomer, loginWithGoogle, createAccount, logout } = useAuth();
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCustomerPassword, setShowCustomerPassword] = useState(false);
   const [showCreatePassword, setShowCreatePassword] = useState(false);
-  const [showAdminPassword, setShowAdminPassword] = useState(false);
   const [customerLoginForm, setCustomerLoginForm] = useState({ email: "", password: "" });
   const [createForm, setCreateForm] = useState({ name: "", email: "", password: "" });
-  const [adminForm, setAdminForm] = useState({ email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const [isGoogleAvailable, setIsGoogleAvailable] = useState(false);
   const customerEmailRef = useRef<HTMLInputElement>(null);
@@ -114,26 +112,7 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
       const loggedInUser = await loginCustomer(customerLoginForm);
 
       if (!loggedInUser) {
-        setError("We couldn't match that customer email and password.");
-        return;
-      }
-
-      routeToArea(loggedInUser.role);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleAdminLogin = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
-
-    try {
-      const loggedInUser = await loginAdmin(adminForm);
-
-      if (!loggedInUser) {
-        setError("The admin credentials you entered are incorrect.");
+        setError("We couldn't match that email and password.");
         return;
       }
 
@@ -266,10 +245,10 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
 
       {mode === "login" ? (
         <div className="mt-7 space-y-4">
-          <form className="space-y-4" onSubmit={handleCustomerLogin}>
+          <form className="space-y-4" onSubmit={handleCustomerLogin} autoComplete="off" data-lpignore="true">
             <div className="space-y-2">
               <Label htmlFor="customer-login-email" className="text-[15px] font-medium text-stone-700">
-                Customer email
+                Gmail / Email
               </Label>
               <div className="relative">
                 <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
@@ -277,7 +256,15 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                   ref={customerEmailRef}
                   id="customer-login-email"
                   type="email"
-                  autoComplete="email"
+                  name="login_identifier"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  data-form-type="other"
+                  data-lpignore="true"
+                  data-1p-ignore="true"
+                  data-bwignore="true"
                   placeholder="you@example.com"
                   className="h-11 rounded-md border-amber-200 bg-amber-50/60 pl-11 pr-4 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
                   value={customerLoginForm.email}
@@ -295,7 +282,15 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                 <Input
                   id="customer-login-password"
                   type={showCustomerPassword ? "text" : "password"}
-                  autoComplete="current-password"
+                  name="login_secret"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  data-form-type="other"
+                  data-lpignore="true"
+                  data-1p-ignore="true"
+                  data-bwignore="true"
                   placeholder="Enter your password"
                   className="h-11 rounded-md border-amber-200 bg-amber-50/60 pl-11 pr-11 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
                   value={customerLoginForm.password}
@@ -328,64 +323,8 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
           </button>
 
           <div className="rounded-2xl border border-amber-200 bg-amber-50/70 px-4 py-3 text-xs text-stone-500">
-            Customer accounts can now use email/password locally. Google remains optional when configured.
+            Use the same form for the hardcoded customer or admin account. Google remains optional when configured.
           </div>
-
-          <div className="flex items-center gap-3 pt-2">
-            <div className="h-px flex-1 bg-amber-200" />
-            <span className="text-xs font-medium uppercase tracking-[0.24em] text-stone-400">admin only</span>
-            <div className="h-px flex-1 bg-amber-200" />
-          </div>
-
-          <form className="space-y-4" onSubmit={handleAdminLogin}>
-            <div className="space-y-2">
-              <Label htmlFor="admin-login-email" className="text-[15px] font-medium text-stone-700">
-                Admin email
-              </Label>
-              <div className="relative">
-                <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-                <Input
-                  id="admin-login-email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="admin@example.com"
-                  className="h-11 rounded-md border-amber-200 bg-amber-50/60 pl-11 pr-4 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
-                  value={adminForm.email}
-                  onChange={(event) => setAdminForm((current) => ({ ...current, email: event.target.value }))}
-                  required
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="admin-login-password" className="text-[15px] font-medium text-stone-700">
-                Admin password
-              </Label>
-              <div className="relative">
-                <KeyRound className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-                <Input
-                  id="admin-login-password"
-                  type={showAdminPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  placeholder="Enter your admin password"
-                  className="h-11 rounded-md border-amber-200 bg-amber-50/60 pl-11 pr-11 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
-                  value={adminForm.password}
-                  onChange={(event) => setAdminForm((current) => ({ ...current, password: event.target.value }))}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowAdminPassword((current) => !current)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 transition-colors hover:text-stone-600"
-                  aria-label={showAdminPassword ? "Hide password" : "Show password"}
-                >
-                  <PasswordToggleIcon visible={showAdminPassword} />
-                </button>
-              </div>
-            </div>
-            <Button type="submit" variant="outline" className="h-11 w-full rounded-md border-amber-300 bg-white/70" disabled={isSubmitting}>
-              {isSubmitting ? "Signing in..." : "Sign In as Admin"}
-            </Button>
-          </form>
 
           <p className="pt-2 text-center text-sm text-stone-500">
             Need a customer account?{" "}
@@ -415,14 +354,22 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
             </div>
           </div>
 
-          <form className="space-y-4" onSubmit={handleCreateAccount}>
+          <form className="space-y-4" onSubmit={handleCreateAccount} autoComplete="off" data-lpignore="true">
             <div className="space-y-2">
               <Label htmlFor="create-name" className="text-[15px] font-medium text-stone-700">
                 Full name
               </Label>
               <Input
                 id="create-name"
-                autoComplete="name"
+                name="signup_name"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="words"
+                spellCheck={false}
+                data-form-type="other"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bwignore="true"
                 placeholder="Your name"
                 className="h-11 rounded-md border-amber-200 bg-amber-50/60 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
                 value={createForm.name}
@@ -439,7 +386,15 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                 <Input
                   id="create-email"
                   type="email"
-                  autoComplete="email"
+                  name="signup_identifier"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  data-form-type="other"
+                  data-lpignore="true"
+                  data-1p-ignore="true"
+                  data-bwignore="true"
                   placeholder="you@example.com"
                   className="h-11 rounded-md border-amber-200 bg-amber-50/60 pl-11 pr-4 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
                   value={createForm.email}
@@ -457,7 +412,15 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                 <Input
                   id="create-password"
                   type={showCreatePassword ? "text" : "password"}
-                  autoComplete="new-password"
+                  name="signup_secret"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  data-form-type="other"
+                  data-lpignore="true"
+                  data-1p-ignore="true"
+                  data-bwignore="true"
                   placeholder="Create a password"
                   className="h-11 rounded-md border-amber-200 bg-amber-50/60 pl-11 pr-11 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
                   value={createForm.password}

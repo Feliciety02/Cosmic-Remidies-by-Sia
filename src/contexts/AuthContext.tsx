@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { getSession, signIn, signOut, useSession } from "next-auth/react";
 import { toast } from "sonner";
-import type { AuthUser } from "@/lib/auth";
+import { getHardcodedCredentialUser, hardcodedCredentialAccounts, type AuthUser } from "@/lib/auth";
 
 interface LoginInput {
   email: string;
@@ -22,7 +22,6 @@ interface AuthContextType {
   user: AuthUser | null;
   isHydrated: boolean;
   loginCustomer: (input: LoginInput) => Promise<AuthUser | null>;
-  loginAdmin: (input: LoginInput) => Promise<AuthUser | null>;
   loginWithGoogle: (callbackUrl?: string) => Promise<void>;
   createAccount: (input: CreateAccountInput) => Promise<AuthUser | null>;
   logout: () => Promise<void>;
@@ -31,15 +30,9 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const CUSTOMER_ACCOUNTS_STORAGE_KEY = "cosmic-customer-accounts";
 const CUSTOMER_SESSION_STORAGE_KEY = "cosmic-customer-session";
-const defaultCustomerAccounts: StoredCustomerAccount[] = [
-  {
-    name: "Demo Customer",
-    email: "customer@example.com",
-    password: "customer123",
-    createdAt: "2026-03-29T00:00:00.000Z",
-    role: "customer",
-  },
-];
+const defaultCustomerAccounts: StoredCustomerAccount[] = hardcodedCredentialAccounts
+  .filter((account) => account.role === "customer")
+  .map((account) => ({ ...account }));
 
 const mapSessionUser = (sessionUser: {
   name?: string | null;
@@ -139,25 +132,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const normalizedEmail = normalizeEmail(email);
     const account = accounts.find((entry) => entry.email === normalizedEmail && entry.password === password);
 
-    if (!account) {
-      toast.error("We couldn't match that customer email and password.");
+    if (account) {
+      const nextUser: AuthUser = {
+        name: account.name,
+        email: account.email,
+        createdAt: account.createdAt,
+        role: "customer",
+      };
+
+      window.localStorage.setItem(CUSTOMER_SESSION_STORAGE_KEY, JSON.stringify(nextUser));
+      setLocalUser(nextUser);
+      toast.success(`Welcome back, ${nextUser.name}.`);
+      return nextUser;
+    }
+
+    const hardcodedUser = getHardcodedCredentialUser(email, password);
+
+    if (!hardcodedUser) {
+      toast.error("We couldn't match that email and password.");
       return null;
     }
 
-    const nextUser: AuthUser = {
-      name: account.name,
-      email: account.email,
-      createdAt: account.createdAt,
-      role: "customer",
-    };
-
-    window.localStorage.setItem(CUSTOMER_SESSION_STORAGE_KEY, JSON.stringify(nextUser));
-    setLocalUser(nextUser);
-    toast.success(`Welcome back, ${nextUser.name}.`);
-    return nextUser;
-  };
-
-  const loginAdmin = async ({ email, password }: LoginInput) => {
     const result = await signIn("credentials", {
       email,
       password,
@@ -165,7 +160,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     if (!result || result.error) {
-      toast.error("The admin credentials you entered are incorrect.");
+      toast.error("That account is available, but the sign-in session could not be started.");
       return null;
     }
 
@@ -177,7 +172,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return null;
     }
 
-    toast.success("Admin access granted.");
+    toast.success(`Welcome back, ${nextUser.name}.`);
     return nextUser;
   };
 
@@ -234,7 +229,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, isHydrated, loginCustomer, loginAdmin, loginWithGoogle, createAccount, logout }}
+      value={{ user, isHydrated, loginCustomer, loginWithGoogle, createAccount, logout }}
     >
       {children}
     </AuthContext.Provider>

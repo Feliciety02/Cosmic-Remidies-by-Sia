@@ -14,7 +14,12 @@ interface HomeAuthModalProps {
 
 const HomeAuthModal = ({ initialMode, initialError }: HomeAuthModalProps) => {
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
   const [open, setOpen] = useState(Boolean(initialMode || initialError));
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     setOpen(Boolean(initialMode || initialError));
@@ -27,6 +32,10 @@ const HomeAuthModal = ({ initialMode, initialError }: HomeAuthModalProps) => {
       router.replace("/", { scroll: false });
     }
   };
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>

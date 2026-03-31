@@ -13,9 +13,45 @@ export interface AuthUser {
 
 export const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
-const adminEmail = process.env.ADMIN_EMAIL ? normalizeEmail(process.env.ADMIN_EMAIL) : null;
-const adminPassword = process.env.ADMIN_PASSWORD ?? null;
-const adminName = process.env.ADMIN_NAME?.trim() || "Admin";
+interface HardcodedCredentialAccount extends AuthUser {
+  password: string;
+}
+
+export const hardcodedCredentialAccounts: HardcodedCredentialAccount[] = [
+  {
+    name: "Demo Customer",
+    email: "customer@example.com",
+    password: "customer123",
+    createdAt: "2026-03-29T00:00:00.000Z",
+    role: "customer",
+  },
+  {
+    name: "Admin",
+    email: "admin@example.com",
+    password: "admin123",
+    createdAt: "2026-03-29T00:00:00.000Z",
+    role: "admin",
+  },
+];
+
+export const getHardcodedCredentialUser = (email: string, password: string): AuthUser | null => {
+  const normalizedEmail = normalizeEmail(email);
+  const account = hardcodedCredentialAccounts.find(
+    (entry) => entry.email === normalizedEmail && entry.password === password,
+  );
+
+  if (!account) {
+    return null;
+  }
+
+  return {
+    name: account.name,
+    email: account.email,
+    createdAt: account.createdAt,
+    role: account.role,
+  };
+};
+
 const googleEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
 
 const providers = [
@@ -29,30 +65,25 @@ const providers = [
     : []),
   CredentialsProvider({
     id: "credentials",
-    name: "Admin Login",
+    name: "Account Login",
     credentials: {
       email: { label: "Email", type: "email" },
       password: { label: "Password", type: "password" },
     },
     async authorize(credentials) {
-      if (!adminEmail || !adminPassword) {
-        return null;
-      }
-
       const email = normalizeEmail(credentials?.email ?? "");
       const password = credentials?.password ?? "";
+      const user = getHardcodedCredentialUser(email, password);
 
-      if (email !== adminEmail || password !== adminPassword) {
-        return null;
-      }
-
-      return {
-        id: adminEmail,
-        name: adminName,
-        email: adminEmail,
-        role: "admin" as const,
-        createdAt: new Date().toISOString(),
-      };
+      return user
+        ? {
+            id: user.email,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            createdAt: user.createdAt,
+          }
+        : null;
     },
   }),
 ];
@@ -77,7 +108,7 @@ export const authOptions: NextAuthOptions = {
     },
     async jwt({ token, user, account }) {
       if (user) {
-        token.role = user.role ?? (account?.provider === "google" ? "customer" : "admin");
+        token.role = user.role ?? "customer";
         token.createdAt = user.createdAt ?? new Date().toISOString();
       }
 
