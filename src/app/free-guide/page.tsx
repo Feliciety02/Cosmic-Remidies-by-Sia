@@ -10,7 +10,7 @@ export const metadata: Metadata = buildMetadata({
 });
 
 const FreeGuidePage = () => (
-  <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-teal-light/40 to-background px-4 py-12">
+  <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-amber-100/40 to-background px-4 py-12">
     <div className="w-full max-w-md">
       <div className="mb-8 text-center">
         <h1 className="mb-4 font-display text-3xl font-bold md:text-4xl">Free Cosmic Healing Starter Guide</h1>

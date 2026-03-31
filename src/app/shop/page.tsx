@@ -85,7 +85,7 @@ const ShopPage = ({ searchParams }: ShopPageProps) => {
                   name="q"
                   defaultValue={search}
                   placeholder="Search guides..."
-                  className="h-12 rounded-full border-sky-200/70 bg-white/90 pl-11 pr-14 shadow-sm"
+                  className="h-12 rounded-full border-amber-200/70 bg-white/90 pl-11 pr-14 shadow-sm"
                 />
                 <Button type="submit" size="icon" className="absolute right-1.5 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full">
                   <Search className="h-4 w-4" />
@@ -102,8 +102,8 @@ const ShopPage = ({ searchParams }: ShopPageProps) => {
                   href={buildShopHref(search, item)}
                   className={`inline-flex min-h-[2.7rem] items-center rounded-full px-4 py-2 text-sm font-medium leading-none transition-all ${
                     category === item
-                      ? "bg-primary text-primary-foreground shadow-[0_10px_24px_rgba(48,95,170,0.18)]"
-                      : "border border-sky-100 bg-white/80 text-secondary-foreground hover:border-sky-200 hover:bg-sky-50/70"
+                      ? "bg-primary text-primary-foreground shadow-[0_10px_24px_rgba(131,94,55,0.18)]"
+                      : "border border-amber-100 bg-white/80 text-secondary-foreground hover:border-amber-200 hover:bg-amber-50/70"
                   }`}
                 >
                   {item}
@@ -140,8 +140,8 @@ const ShopPage = ({ searchParams }: ShopPageProps) => {
               aria-disabled={currentPage === 1}
               className={`inline-flex min-h-[2.75rem] items-center rounded-full px-4 text-sm font-medium transition-colors ${
                 currentPage === 1
-                  ? "pointer-events-none border border-slate-200 bg-slate-100 text-slate-400"
-                  : "border border-sky-100 bg-white text-secondary-foreground hover:border-sky-200 hover:bg-sky-50/70"
+                  ? "pointer-events-none border border-stone-200 bg-stone-100 text-stone-400"
+                  : "border border-amber-100 bg-white text-secondary-foreground hover:border-amber-200 hover:bg-amber-50/70"
               }`}
             >
               Previous
@@ -154,8 +154,8 @@ const ShopPage = ({ searchParams }: ShopPageProps) => {
                 aria-current={pageNumber === currentPage ? "page" : undefined}
                 className={`inline-flex h-11 min-w-[2.75rem] items-center justify-center rounded-full px-4 text-sm font-medium transition-colors ${
                   pageNumber === currentPage
-                    ? "bg-primary text-primary-foreground shadow-[0_10px_24px_rgba(48,95,170,0.18)]"
-                    : "border border-sky-100 bg-white text-secondary-foreground hover:border-sky-200 hover:bg-sky-50/70"
+                    ? "bg-primary text-primary-foreground shadow-[0_10px_24px_rgba(131,94,55,0.18)]"
+                    : "border border-amber-100 bg-white text-secondary-foreground hover:border-amber-200 hover:bg-amber-50/70"
                 }`}
               >
                 {pageNumber}
@@ -167,8 +167,8 @@ const ShopPage = ({ searchParams }: ShopPageProps) => {
               aria-disabled={currentPage === totalPages}
               className={`inline-flex min-h-[2.75rem] items-center rounded-full px-4 text-sm font-medium transition-colors ${
                 currentPage === totalPages
-                  ? "pointer-events-none border border-slate-200 bg-slate-100 text-slate-400"
-                  : "border border-sky-100 bg-white text-secondary-foreground hover:border-sky-200 hover:bg-sky-50/70"
+                  ? "pointer-events-none border border-stone-200 bg-stone-100 text-stone-400"
+                  : "border border-amber-100 bg-white text-secondary-foreground hover:border-amber-200 hover:bg-amber-50/70"
               }`}
             >
               Next

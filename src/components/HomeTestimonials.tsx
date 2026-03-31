@@ -10,9 +10,9 @@ import {
 } from "@/lib/admin-store";
 
 const sectionHeading = "mb-12 text-center";
-const sectionEyebrow = "mb-3 text-xs font-semibold uppercase tracking-[0.32em] text-sky-700";
+const sectionEyebrow = "mb-3 text-xs font-semibold uppercase tracking-[0.32em] text-amber-800";
 const sectionTitle = "font-display text-3xl font-bold tracking-tight text-stone-800 md:text-4xl";
-const sectionDescription = "mx-auto mt-4 max-w-2xl text-base leading-7 text-stone-500";
+const sectionDescription = "mx-auto mt-4 max-w-2xl text-base leading-7 text-stone-600";
 
 interface HomeTestimonialsProps {
   eyebrow: string;
@@ -28,7 +28,7 @@ const HomeTestimonials = ({ eyebrow, title, description }: HomeTestimonialsProps
   }, []);
 
   return (
-    <section className="bg-[linear-gradient(180deg,#f6f9fc_0%,#fbfcfe_100%)] py-16 md:py-24">
+    <section className="bg-[linear-gradient(180deg,#f7eee0_0%,#fdf7ee_100%)] py-16 md:py-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className={sectionHeading}>
           <p className={sectionEyebrow}>{eyebrow}</p>

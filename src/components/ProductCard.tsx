@@ -9,14 +9,14 @@ type ProductCardProps = Pick<Product, "id" | "title" | "price" | "originalPrice"
 const ProductCard = ({ id, title, price, originalPrice, image, rating, badge }: ProductCardProps) => (
   <div className="flex h-full w-full flex-col overflow-hidden rounded-2xl border bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
     <Link href={`/product/${id}`} className="group block">
-      <div className="relative border-b bg-[linear-gradient(180deg,rgba(244,249,255,1)_0%,rgba(235,243,252,0.92)_100%)] px-5 py-6">
+      <div className="relative border-b bg-[linear-gradient(180deg,rgba(255,248,238,1)_0%,rgba(246,234,216,0.92)_100%)] px-5 py-6">
         {badge && (
-          <span className="absolute left-3 top-3 z-10 rounded-full bg-[linear-gradient(135deg,#d2a24c_0%,#b57a2d_100%)] px-3 py-1.5 text-xs font-bold text-white shadow-[0_8px_24px_rgba(181,122,45,0.28)]">
+          <span className="absolute left-3 top-3 z-10 rounded-full bg-[linear-gradient(135deg,#d6b07d_0%,#9c7045_100%)] px-3 py-1.5 text-xs font-bold text-[#fff9f0] shadow-[0_8px_24px_rgba(156,112,69,0.28)]">
             {badge}
           </span>
         )}
         <div className="mx-auto flex min-h-[16rem] items-center justify-center">
-          <div className="relative aspect-[2/3] w-full max-w-[9.25rem] overflow-hidden rounded-md border border-border/60 bg-white shadow-[0_10px_28px_rgba(15,23,42,0.12)] transition-transform duration-500 group-hover:scale-[1.03]">
+          <div className="relative aspect-[2/3] w-full max-w-[9.25rem] overflow-hidden rounded-md border border-border/60 bg-white shadow-[0_10px_28px_rgba(93,66,33,0.12)] transition-transform duration-500 group-hover:scale-[1.03]">
             <Image
               src={image}
               alt={title}

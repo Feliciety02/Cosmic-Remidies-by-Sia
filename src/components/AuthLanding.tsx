@@ -31,7 +31,7 @@ const modeContent: Record<AuthMode, { title: string; description: string }> = {
 };
 
 const authCardClassName =
-  "scroll-mt-28 rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_28px_80px_rgba(15,23,42,0.14)] sm:p-8";
+  "scroll-mt-28 rounded-[28px] border border-amber-200/70 bg-[rgba(255,251,245,0.96)] p-6 shadow-[0_28px_80px_rgba(93,66,33,0.14)] sm:p-8";
 
 const authErrorMessages: Record<string, string> = {
   AccessDenied: "Access was denied. If you cancelled Google sign-in or used an unverified Google account, try again.",
@@ -201,18 +201,18 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
       <div id={authPanelId} className={authCardClassName}>
         <GoogleMark className="h-10 w-10" />
         <p className="mt-5 text-sm text-muted-foreground">{isAdmin ? "Admin session active" : "Signed in"}</p>
-        <h2 className="mt-1 font-sans text-[2rem] font-medium tracking-tight text-slate-900">Welcome back, {user.name}</h2>
+        <h2 className="mt-1 font-sans text-[2rem] font-medium tracking-tight text-stone-900">Welcome back, {user.name}</h2>
         <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
           {isAdmin
             ? "Open the dashboard to manage the platform, or return to the storefront view."
             : "Your customer account is active. Open your dashboard, revisit your library, or keep exploring the shop."}
         </p>
 
-        <div className="mt-6 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-700">
+        <div className="mt-6 rounded-full border border-amber-200 bg-amber-50/70 px-4 py-2 text-sm text-stone-700">
           {user.email}
         </div>
 
-        <div className="mt-6 grid gap-4 rounded-3xl border border-slate-200 bg-slate-50/70 p-5">
+        <div className="mt-6 grid gap-4 rounded-3xl border border-amber-200 bg-amber-50/60 p-5">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Signed in as</p>
@@ -254,8 +254,8 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
   return (
     <div id={authPanelId} className={`${authCardClassName} mx-auto w-full max-w-md`}>
       <div className="space-y-2 text-center">
-        <h2 className="font-display text-[2rem] font-bold leading-tight text-slate-900">{activeContent.title}</h2>
-        <p className="mx-auto max-w-sm text-sm leading-relaxed text-slate-500">{activeContent.description}</p>
+        <h2 className="font-display text-[2rem] font-bold leading-tight text-stone-900">{activeContent.title}</h2>
+        <p className="mx-auto max-w-sm text-sm leading-relaxed text-stone-600">{activeContent.description}</p>
       </div>
 
       {error ? (
@@ -268,18 +268,18 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
         <div className="mt-7 space-y-4">
           <form className="space-y-4" onSubmit={handleCustomerLogin}>
             <div className="space-y-2">
-              <Label htmlFor="customer-login-email" className="text-[15px] font-medium text-slate-700">
+              <Label htmlFor="customer-login-email" className="text-[15px] font-medium text-stone-700">
                 Customer email
               </Label>
               <div className="relative">
-                <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
                 <Input
                   ref={customerEmailRef}
                   id="customer-login-email"
                   type="email"
                   autoComplete="email"
                   placeholder="you@example.com"
-                  className="h-11 rounded-md border-slate-200 bg-slate-50 pl-11 pr-4 text-slate-700 placeholder:text-slate-400 focus-visible:ring-[#2f6b89]/30"
+                  className="h-11 rounded-md border-amber-200 bg-amber-50/60 pl-11 pr-4 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
                   value={customerLoginForm.email}
                   onChange={(event) => setCustomerLoginForm((current) => ({ ...current, email: event.target.value }))}
                   required
@@ -287,17 +287,17 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="customer-login-password" className="text-[15px] font-medium text-slate-700">
+              <Label htmlFor="customer-login-password" className="text-[15px] font-medium text-stone-700">
                 Password
               </Label>
               <div className="relative">
-                <KeyRound className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <KeyRound className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
                 <Input
                   id="customer-login-password"
                   type={showCustomerPassword ? "text" : "password"}
                   autoComplete="current-password"
                   placeholder="Enter your password"
-                  className="h-11 rounded-md border-slate-200 bg-slate-50 pl-11 pr-11 text-slate-700 placeholder:text-slate-400 focus-visible:ring-[#2f6b89]/30"
+                  className="h-11 rounded-md border-amber-200 bg-amber-50/60 pl-11 pr-11 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
                   value={customerLoginForm.password}
                   onChange={(event) => setCustomerLoginForm((current) => ({ ...current, password: event.target.value }))}
                   required
@@ -305,14 +305,14 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                 <button
                   type="button"
                   onClick={() => setShowCustomerPassword((current) => !current)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 transition-colors hover:text-stone-600"
                   aria-label={showCustomerPassword ? "Hide password" : "Show password"}
                 >
                   <PasswordToggleIcon visible={showCustomerPassword} />
                 </button>
               </div>
             </div>
-            <Button type="submit" className="h-11 w-full rounded-md bg-[#2f6b89] text-base font-semibold text-white hover:bg-[#275b74]" disabled={isSubmitting}>
+            <Button type="submit" className="h-11 w-full rounded-md bg-[linear-gradient(135deg,#caa16f_0%,#8b6440_100%)] text-base font-semibold text-[#fff9f0] hover:brightness-105" disabled={isSubmitting}>
               {isSubmitting ? "Signing in..." : "Sign In to Your Account"}
             </Button>
           </form>
@@ -321,35 +321,35 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
             type="button"
             onClick={handleGoogleLogin}
             disabled={isSubmitting}
-            className="flex h-11 w-full items-center justify-center gap-3 rounded-md border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-70"
+            className="flex h-11 w-full items-center justify-center gap-3 rounded-md border border-amber-200 bg-amber-50/70 px-4 text-sm font-medium text-stone-700 transition-colors hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-70"
           >
             <GoogleMark className="h-5 w-5" />
             {isGoogleAvailable ? "Continue with Google" : "Google sign-in not configured"}
           </button>
 
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500">
+          <div className="rounded-2xl border border-amber-200 bg-amber-50/70 px-4 py-3 text-xs text-stone-500">
             Customer accounts can now use email/password locally. Google remains optional when configured.
           </div>
 
           <div className="flex items-center gap-3 pt-2">
-            <div className="h-px flex-1 bg-slate-200" />
-            <span className="text-xs font-medium uppercase tracking-[0.24em] text-slate-400">admin only</span>
-            <div className="h-px flex-1 bg-slate-200" />
+            <div className="h-px flex-1 bg-amber-200" />
+            <span className="text-xs font-medium uppercase tracking-[0.24em] text-stone-400">admin only</span>
+            <div className="h-px flex-1 bg-amber-200" />
           </div>
 
           <form className="space-y-4" onSubmit={handleAdminLogin}>
             <div className="space-y-2">
-              <Label htmlFor="admin-login-email" className="text-[15px] font-medium text-slate-700">
+              <Label htmlFor="admin-login-email" className="text-[15px] font-medium text-stone-700">
                 Admin email
               </Label>
               <div className="relative">
-                <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
                 <Input
                   id="admin-login-email"
                   type="email"
                   autoComplete="email"
                   placeholder="admin@example.com"
-                  className="h-11 rounded-md border-slate-200 bg-slate-50 pl-11 pr-4 text-slate-700 placeholder:text-slate-400 focus-visible:ring-[#2f6b89]/30"
+                  className="h-11 rounded-md border-amber-200 bg-amber-50/60 pl-11 pr-4 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
                   value={adminForm.email}
                   onChange={(event) => setAdminForm((current) => ({ ...current, email: event.target.value }))}
                   required
@@ -357,17 +357,17 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="admin-login-password" className="text-[15px] font-medium text-slate-700">
+              <Label htmlFor="admin-login-password" className="text-[15px] font-medium text-stone-700">
                 Admin password
               </Label>
               <div className="relative">
-                <KeyRound className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <KeyRound className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
                 <Input
                   id="admin-login-password"
                   type={showAdminPassword ? "text" : "password"}
                   autoComplete="current-password"
                   placeholder="Enter your admin password"
-                  className="h-11 rounded-md border-slate-200 bg-slate-50 pl-11 pr-11 text-slate-700 placeholder:text-slate-400 focus-visible:ring-[#2f6b89]/30"
+                  className="h-11 rounded-md border-amber-200 bg-amber-50/60 pl-11 pr-11 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
                   value={adminForm.password}
                   onChange={(event) => setAdminForm((current) => ({ ...current, password: event.target.value }))}
                   required
@@ -375,23 +375,23 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                 <button
                   type="button"
                   onClick={() => setShowAdminPassword((current) => !current)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 transition-colors hover:text-stone-600"
                   aria-label={showAdminPassword ? "Hide password" : "Show password"}
                 >
                   <PasswordToggleIcon visible={showAdminPassword} />
                 </button>
               </div>
             </div>
-            <Button type="submit" variant="outline" className="h-11 w-full rounded-md border-slate-300" disabled={isSubmitting}>
+            <Button type="submit" variant="outline" className="h-11 w-full rounded-md border-amber-300 bg-white/70" disabled={isSubmitting}>
               {isSubmitting ? "Signing in..." : "Sign In as Admin"}
             </Button>
           </form>
 
-          <p className="pt-2 text-center text-sm text-slate-500">
+          <p className="pt-2 text-center text-sm text-stone-500">
             Need a customer account?{" "}
             <button
               type="button"
-              className="font-semibold text-[#2f6b89] transition-colors hover:text-[#275b74]"
+              className="font-semibold text-amber-800 transition-colors hover:text-amber-900"
               onClick={() => setActiveMode("create")}
             >
               Create one here
@@ -400,14 +400,14 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
         </div>
       ) : (
         <div className="mt-7 space-y-4">
-          <div className="rounded-3xl border border-slate-200 bg-slate-50/80 p-5">
+          <div className="rounded-3xl border border-amber-200 bg-amber-50/80 p-5">
             <div className="flex items-start gap-3">
-              <span className="mt-0.5 rounded-full bg-[#2f6b89]/10 p-2 text-[#2f6b89]">
+              <span className="mt-0.5 rounded-full bg-amber-200/40 p-2 text-amber-800">
                 <ShieldCheck className="h-4 w-4" />
               </span>
               <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-slate-900">Customer onboarding is available now</h3>
-                <p className="text-sm leading-relaxed text-slate-600">
+                <h3 className="text-sm font-semibold text-stone-900">Customer onboarding is available now</h3>
+                <p className="text-sm leading-relaxed text-stone-600">
                   Create an email/password account in the browser and move straight into your customer dashboard. Google
                   sign-in still works when OAuth is configured.
                 </p>
@@ -417,31 +417,31 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
 
           <form className="space-y-4" onSubmit={handleCreateAccount}>
             <div className="space-y-2">
-              <Label htmlFor="create-name" className="text-[15px] font-medium text-slate-700">
+              <Label htmlFor="create-name" className="text-[15px] font-medium text-stone-700">
                 Full name
               </Label>
               <Input
                 id="create-name"
                 autoComplete="name"
                 placeholder="Your name"
-                className="h-11 rounded-md border-slate-200 bg-slate-50 text-slate-700 placeholder:text-slate-400 focus-visible:ring-[#2f6b89]/30"
+                className="h-11 rounded-md border-amber-200 bg-amber-50/60 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
                 value={createForm.name}
                 onChange={(event) => setCreateForm((current) => ({ ...current, name: event.target.value }))}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="create-email" className="text-[15px] font-medium text-slate-700">
+              <Label htmlFor="create-email" className="text-[15px] font-medium text-stone-700">
                 Email
               </Label>
               <div className="relative">
-                <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
                 <Input
                   id="create-email"
                   type="email"
                   autoComplete="email"
                   placeholder="you@example.com"
-                  className="h-11 rounded-md border-slate-200 bg-slate-50 pl-11 pr-4 text-slate-700 placeholder:text-slate-400 focus-visible:ring-[#2f6b89]/30"
+                  className="h-11 rounded-md border-amber-200 bg-amber-50/60 pl-11 pr-4 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
                   value={createForm.email}
                   onChange={(event) => setCreateForm((current) => ({ ...current, email: event.target.value }))}
                   required
@@ -449,17 +449,17 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="create-password" className="text-[15px] font-medium text-slate-700">
+              <Label htmlFor="create-password" className="text-[15px] font-medium text-stone-700">
                 Password
               </Label>
               <div className="relative">
-                <KeyRound className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <KeyRound className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
                 <Input
                   id="create-password"
                   type={showCreatePassword ? "text" : "password"}
                   autoComplete="new-password"
                   placeholder="Create a password"
-                  className="h-11 rounded-md border-slate-200 bg-slate-50 pl-11 pr-11 text-slate-700 placeholder:text-slate-400 focus-visible:ring-[#2f6b89]/30"
+                  className="h-11 rounded-md border-amber-200 bg-amber-50/60 pl-11 pr-11 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
                   value={createForm.password}
                   onChange={(event) => setCreateForm((current) => ({ ...current, password: event.target.value }))}
                   required
@@ -467,14 +467,14 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                 <button
                   type="button"
                   onClick={() => setShowCreatePassword((current) => !current)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 transition-colors hover:text-stone-600"
                   aria-label={showCreatePassword ? "Hide password" : "Show password"}
                 >
                   <PasswordToggleIcon visible={showCreatePassword} />
                 </button>
               </div>
             </div>
-            <Button type="submit" className="h-11 w-full gap-2 rounded-md bg-[#2f6b89] text-base font-semibold text-white hover:bg-[#275b74]" disabled={isSubmitting}>
+            <Button type="submit" className="h-11 w-full gap-2 rounded-md bg-[linear-gradient(135deg,#caa16f_0%,#8b6440_100%)] text-base font-semibold text-[#fff9f0] hover:brightness-105" disabled={isSubmitting}>
               <UserPlus className="h-4 w-4" />
               {isSubmitting ? "Creating account..." : "Create Customer Account"}
             </Button>
@@ -484,21 +484,21 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
             type="button"
             onClick={handleGoogleLogin}
             disabled={isSubmitting}
-            className="flex h-11 w-full items-center justify-center gap-3 rounded-md border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-70"
+            className="flex h-11 w-full items-center justify-center gap-3 rounded-md border border-amber-200 bg-amber-50/70 px-4 text-sm font-medium text-stone-700 transition-colors hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-70"
           >
             <GoogleMark className="h-5 w-5" />
             {isGoogleAvailable ? "Create with Google" : "Google sign-in not configured"}
           </button>
 
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500">
+          <div className="rounded-2xl border border-amber-200 bg-amber-50/70 px-4 py-3 text-xs text-stone-500">
             Customer accounts are stored locally in this environment so you can complete signup and onboarding immediately.
           </div>
 
-          <p className="pt-2 text-center text-sm text-slate-500">
+          <p className="pt-2 text-center text-sm text-stone-500">
             Already have an account?{" "}
             <button
               type="button"
-              className="font-semibold text-[#2f6b89] transition-colors hover:text-[#275b74]"
+              className="font-semibold text-amber-800 transition-colors hover:text-amber-900"
               onClick={() => {
                 setActiveMode("login");
                 focusCustomerField();

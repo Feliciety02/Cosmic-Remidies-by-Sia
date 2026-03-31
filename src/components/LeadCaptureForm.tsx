@@ -105,19 +105,19 @@ const LeadCaptureForm = ({
       </div>
 
       {requireConsent ? (
-        <label className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+        <label className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50/70 px-4 py-3 text-sm text-stone-600">
           <input
             name="consent"
             type="checkbox"
             value="yes"
-            className="mt-0.5 h-4 w-4 rounded border-slate-300 text-primary"
+            className="mt-0.5 h-4 w-4 rounded border-amber-300 text-primary"
             required
           />
           <span>I agree to receive the free guide and follow-up emails about related products and offers.</span>
         </label>
       ) : null}
 
-      <p className={layout === "inline" ? "text-xs text-stone-400" : "text-center text-xs text-muted-foreground"}>
+      <p className={layout === "inline" ? "text-xs text-stone-500" : "text-center text-xs text-muted-foreground"}>
         By requesting the guide, you agree to our{" "}
         <Link href="/privacy-policy" className="underline underline-offset-2 hover:text-stone-600">
           Privacy Policy

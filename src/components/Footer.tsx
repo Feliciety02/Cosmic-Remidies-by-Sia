@@ -87,7 +87,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="mt-16 border-t border-stone-800/10 bg-[linear-gradient(180deg,rgba(17,24,39,0.98),rgba(15,23,42,1))] text-primary-foreground">
+    <footer className="mt-16 border-t border-stone-800/10 bg-[linear-gradient(180deg,rgba(85,58,34,0.98),rgba(60,40,24,1))] text-primary-foreground">
       <div className="container mx-auto px-4 py-8 sm:py-9">
         <div className="grid grid-cols-1 gap-8 border-b border-white/10 pb-7 lg:grid-cols-2 lg:gap-12">
           <div className="lg:pr-8">
@@ -108,7 +108,7 @@ const Footer = () => {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="h-11 rounded-full bg-[linear-gradient(135deg,#4090df_0%,#245ea7_100%)] px-6 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(36,94,167,0.22)] hover:brightness-105"
+                  className="h-11 rounded-full bg-[linear-gradient(135deg,#d2ad7b_0%,#a17245_100%)] px-6 text-sm font-semibold text-[#fff9f0] shadow-[0_10px_24px_rgba(94,66,34,0.22)] hover:brightness-105"
                 >
                   {isSubmitting ? "Sending..." : "Subscribe"}
                 </Button>

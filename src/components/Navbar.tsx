@@ -43,7 +43,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-sky-900/10 bg-[rgba(246,250,255,0.9)] backdrop-blur-xl">
+    <nav className="sticky top-0 z-50 border-b border-amber-900/10 bg-[rgba(251,246,237,0.9)] backdrop-blur-xl">
       <div className="container mx-auto flex items-center justify-between px-4 py-4">
         <Link href="/" className="flex items-center gap-3">
           <Image src={logo} alt="Cosmic Remedies by Sia" className="h-10 w-auto md:h-12" priority />
@@ -69,7 +69,7 @@ const Navbar = () => {
             <Button
               type="button"
               variant="outline"
-              className="hidden rounded-full border-sky-900/10 bg-white/70 md:inline-flex"
+              className="hidden rounded-full border-amber-900/10 bg-white/70 md:inline-flex"
               onClick={handleLogout}
             >
               Logout
@@ -77,14 +77,14 @@ const Navbar = () => {
           ) : null}
           <Button
             asChild
-            className="hidden rounded-full border-0 bg-[linear-gradient(135deg,#3f89d8_0%,#245ea7_100%)] text-white shadow-[0_10px_30px_rgba(36,94,167,0.24)] transition-all hover:brightness-105 md:inline-flex"
+            className="hidden rounded-full border-0 bg-[linear-gradient(135deg,#caa16f_0%,#8b6440_100%)] text-[#fff9f0] shadow-[0_10px_30px_rgba(131,94,55,0.24)] transition-all hover:brightness-105 md:inline-flex"
           >
             <Link href={user ? accountHref : buildAuthHref("login")}>
               {isAuthHydrated && user ? accountLabel : "Login"}
             </Link>
           </Button>
           {isCustomer ? (
-            <Button asChild variant="ghost" size="icon" className="relative rounded-full border border-sky-900/10 bg-white/70">
+            <Button asChild variant="ghost" size="icon" className="relative rounded-full border border-amber-900/10 bg-white/70">
               <Link href="/cart" aria-label="Open cart">
                 <ShoppingCart className="h-5 w-5" />
                 {isHydrated && totalItems > 0 && (
@@ -97,7 +97,7 @@ const Navbar = () => {
           ) : null}
           <button
             type="button"
-            className="rounded-full border border-sky-900/10 bg-white/70 p-2 md:hidden"
+            className="rounded-full border border-amber-900/10 bg-white/70 p-2 md:hidden"
             onClick={() => setOpen((current) => !current)}
             aria-expanded={open}
             aria-label={open ? "Close navigation menu" : "Open navigation menu"}
@@ -108,13 +108,13 @@ const Navbar = () => {
       </div>
 
       {open && (
-        <div className="border-t border-sky-900/10 bg-[rgba(246,250,255,0.96)] px-4 pb-4 md:hidden">
+        <div className="border-t border-amber-900/10 bg-[rgba(251,246,237,0.96)] px-4 pb-4 md:hidden">
           {primaryNavLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
-                "block border-b border-sky-900/10 py-3 text-[15px] font-medium last:border-0",
+                "block border-b border-amber-900/10 py-3 text-[15px] font-medium last:border-0",
                 isActive(link.href) ? "text-accent" : "text-foreground/70 hover:text-primary",
               )}
             >
@@ -123,7 +123,7 @@ const Navbar = () => {
           ))}
           <Button
             asChild
-            className="mt-4 w-full border-0 bg-[linear-gradient(135deg,#3f89d8_0%,#245ea7_100%)] text-white shadow-[0_10px_30px_rgba(36,94,167,0.22)] transition-all hover:brightness-105"
+            className="mt-4 w-full border-0 bg-[linear-gradient(135deg,#caa16f_0%,#8b6440_100%)] text-[#fff9f0] shadow-[0_10px_30px_rgba(131,94,55,0.22)] transition-all hover:brightness-105"
           >
             <Link href={user ? accountHref : buildAuthHref("login")}>
               {isAuthHydrated && user ? accountLabel : "Login"}
@@ -133,7 +133,7 @@ const Navbar = () => {
             <Button
               type="button"
               variant="outline"
-              className="mt-3 w-full border-sky-900/10 bg-white/70"
+              className="mt-3 w-full border-amber-900/10 bg-white/70"
               onClick={handleLogout}
             >
               Logout
