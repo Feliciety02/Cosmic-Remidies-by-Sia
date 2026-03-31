@@ -294,7 +294,7 @@ const Products = () => {
             <div className="w-full max-w-xl">
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-primary/70">Catalog controls</p>
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-sky-800/55" />
+                <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-amber-800/55" />
                 <Input
                   id="products-search"
                   name="productsSearch"
@@ -324,7 +324,7 @@ const Products = () => {
 
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-wrap items-center gap-3">
-              <div className="flex h-11 items-center gap-2 rounded-full bg-sky-100/80 px-4 text-sm font-medium text-sky-800">
+              <div className="flex h-11 items-center gap-2 rounded-full bg-amber-100/80 px-4 text-sm font-medium text-amber-800">
                 <SlidersHorizontal className="h-4 w-4" />
                 Filter by status
               </div>
@@ -344,14 +344,14 @@ const Products = () => {
                       }}
                       className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-all ${
                         filter === activeFilter
-                          ? "bg-[linear-gradient(135deg,#3f79b4_0%,#245f93_100%)] text-white shadow-[0_14px_30px_rgba(43,88,131,0.24)]"
-                          : "text-slate-700 hover:bg-slate-100"
+                          ? "bg-[linear-gradient(135deg,#caa16f_0%,#8b6440_100%)] text-[#fff9f0] shadow-[0_14px_30px_rgba(104,75,42,0.24)]"
+                          : "text-stone-700 hover:bg-amber-50"
                       }`}
                     >
                       <span>{filter}</span>
                       <span
                         className={`rounded-full px-2 py-0.5 text-[11px] ${
-                          filter === activeFilter ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
+                          filter === activeFilter ? "bg-white/20 text-[#fff9f0]" : "bg-amber-50 text-stone-500"
                         }`}
                       >
                         {count}
@@ -362,7 +362,7 @@ const Products = () => {
               </div>
             </div>
 
-            <div className="rounded-full border border-sky-200/70 bg-white/90 px-4 py-2 text-sm text-muted-foreground">
+            <div className="rounded-full border border-amber-200/70 bg-white/90 px-4 py-2 text-sm text-muted-foreground">
               Showing <span className="font-semibold text-foreground">{filteredProducts.length}</span> matching products
             </div>
           </div>
@@ -373,7 +373,7 @@ const Products = () => {
         {paginatedProducts.map((product) => (
           <Card key={product.id} className="group rounded-[1.5rem] border-white/70 bg-white/90 p-5 shadow-[0_18px_50px_rgba(66,97,129,0.08)] transition-shadow hover:shadow-[0_22px_60px_rgba(66,97,129,0.12)]">
             <div className="mb-4 flex items-start justify-between">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-50 text-base font-semibold text-primary">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-base font-semibold text-primary">
                 {product.title
                   .split(" ")
                   .slice(0, 2)
@@ -382,7 +382,7 @@ const Products = () => {
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button type="button" className="rounded-xl p-1.5 opacity-0 transition-colors group-hover:opacity-100 hover:bg-slate-100">
+                  <button type="button" className="rounded-xl p-1.5 opacity-0 transition-colors group-hover:opacity-100 hover:bg-amber-50">
                     <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
                   </button>
                 </DropdownMenuTrigger>

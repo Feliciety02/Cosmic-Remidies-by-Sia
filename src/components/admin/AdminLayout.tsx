@@ -36,10 +36,10 @@ const AdminNav = ({
   onNavigate?: () => void;
   onSignOut: () => void;
 }) => (
-  <div className="flex h-full flex-col bg-[linear-gradient(180deg,rgba(255,255,255,0.94)_0%,rgba(247,250,253,0.98)_100%)]">
+  <div className="flex h-full flex-col bg-[linear-gradient(180deg,rgba(255,251,245,0.94)_0%,rgba(246,237,223,0.98)_100%)]">
     <div className="border-b border-white/70 px-5 py-6">
       <Link href="/admin" className="flex items-center gap-3" onClick={onNavigate}>
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-sky-200/70 bg-white shadow-[0_12px_30px_rgba(67,103,142,0.14)]">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-amber-200/70 bg-white shadow-[0_12px_30px_rgba(104,75,42,0.14)]">
           <Image src={logo} alt="Cosmic Remedies by Sia" className="h-8 w-auto" priority />
         </div>
         <div>
@@ -62,7 +62,7 @@ const AdminNav = ({
             className={cn(
               "flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-medium transition-all",
               isActive
-                ? "bg-[linear-gradient(135deg,hsl(204_52%_42%)_0%,hsl(208_57%_30%)_100%)] text-primary-foreground shadow-[0_18px_38px_rgba(53,96,144,0.22)]"
+                ? "bg-[linear-gradient(135deg,hsl(35_48%_54%)_0%,hsl(28_37%_38%)_100%)] text-primary-foreground shadow-[0_18px_38px_rgba(104,75,42,0.22)]"
                 : "text-foreground/70 hover:bg-white hover:text-foreground hover:shadow-sm",
             )}
           >
@@ -101,8 +101,8 @@ export const AdminLayout = ({ title, subtitle, children }: AdminLayoutProps) => 
   };
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#f7fbfe_0%,#f2f6fa_48%,#f8fbfd_100%)]">
-      <div className="pointer-events-none fixed inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,rgba(123,185,227,0.16),transparent_60%)]" />
+    <div className="min-h-screen bg-[linear-gradient(180deg,#fdf7ee_0%,#f3e8d8_48%,#f9f2e8_100%)]">
+      <div className="pointer-events-none fixed inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,rgba(199,155,99,0.18),transparent_60%)]" />
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-white/70 bg-white/70 backdrop-blur-xl lg:block">
         <AdminNav pathname={pathname} onSignOut={handleSignOut} />
       </aside>

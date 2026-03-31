@@ -10,7 +10,7 @@ const badgeStyles: Record<string, string> = {
   refunded: "border-red-200 bg-red-50 text-red-700",
   "best seller": "border-primary/20 bg-primary/10 text-primary",
   new: "border-amber-200 bg-amber-50 text-amber-700",
-  featured: "border-sky-200 bg-sky-50 text-sky-700",
+  featured: "border-amber-200 bg-amber-50 text-amber-800",
   "on sale": "border-rose-200 bg-rose-50 text-rose-700",
 };
 
