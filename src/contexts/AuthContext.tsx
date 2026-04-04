@@ -3,7 +3,8 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { getSession, signIn, signOut, useSession } from "next-auth/react";
 import { toast } from "sonner";
-import { getHardcodedCredentialUser, hardcodedCredentialAccounts, type AuthUser } from "@/lib/auth";
+import { hardcodedCredentialAccounts, normalizeEmail } from "@/lib/demo-credentials";
+import { getHardcodedCredentialUser, type AuthUser } from "@/lib/auth";
 
 interface LoginInput {
   email: string;
@@ -51,8 +52,6 @@ const mapSessionUser = (sessionUser: {
     role: sessionUser.role,
   };
 };
-
-const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
 const readStoredAccounts = (rawValue: string | null): StoredCustomerAccount[] => {
   if (!rawValue) {

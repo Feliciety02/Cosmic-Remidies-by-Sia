@@ -4,9 +4,10 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { getProviders } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Eye, EyeOff, KeyRound, Mail, ShieldCheck, UserPlus } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, KeyRound, Mail, ShieldCheck, Sparkles, UserPlus } from "lucide-react";
 import GoogleMark from "@/components/GoogleMark";
 import { useAuth } from "@/contexts/AuthContext";
+import { hardcodedCredentialAccounts, type HardcodedCredentialAccount } from "@/lib/demo-credentials";
 import { authPanelId, buildAuthHref } from "@/lib/site";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,6 +42,9 @@ const authErrorMessages: Record<string, string> = {
   Configuration: "Authentication is not configured correctly. Check your auth environment variables.",
   Default: "Authentication could not be completed. Please try again.",
 };
+
+const demoCustomerAccount = hardcodedCredentialAccounts.find((account) => account.role === "customer")!;
+const demoAdminAccount = hardcodedCredentialAccounts.find((account) => account.role === "admin")!;
 
 const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) => {
   const router = useRouter();
@@ -101,6 +105,14 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
     requestAnimationFrame(() => {
       customerEmailRef.current?.focus();
     });
+  };
+
+  const applyDemoLogin = (account: HardcodedCredentialAccount) => {
+    setMode("login");
+    setError(null);
+    setCustomerLoginForm({ email: account.email, password: account.password });
+    router.replace(buildAuthHref("login"), { scroll: false });
+    focusCustomerField();
   };
 
   const handleCustomerLogin = async (event: FormEvent<HTMLFormElement>) => {
@@ -232,6 +244,30 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
 
   return (
     <div id={authPanelId} className={`${authCardClassName} mx-auto w-full max-w-md`}>
+      <div className="mb-6 grid grid-cols-2 gap-2 rounded-full border border-amber-200 bg-white/80 p-1">
+        <button
+          type="button"
+          className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+            mode === "login" ? "bg-[linear-gradient(135deg,#caa16f_0%,#8b6440_100%)] text-[#fff9f0]" : "text-stone-600"
+          }`}
+          onClick={() => {
+            setActiveMode("login");
+            focusCustomerField();
+          }}
+        >
+          Sign in
+        </button>
+        <button
+          type="button"
+          className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+            mode === "create" ? "bg-[linear-gradient(135deg,#caa16f_0%,#8b6440_100%)] text-[#fff9f0]" : "text-stone-600"
+          }`}
+          onClick={() => setActiveMode("create")}
+        >
+          Create account
+        </button>
+      </div>
+
       <div className="space-y-2 text-center">
         <h2 className="font-display text-[2rem] font-bold leading-tight text-stone-900">{activeContent.title}</h2>
         <p className="mx-auto max-w-sm text-sm leading-relaxed text-stone-600">{activeContent.description}</p>
@@ -245,6 +281,45 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
 
       {mode === "login" ? (
         <div className="mt-7 space-y-4">
+          <div className="rounded-3xl border border-amber-200 bg-white/85 p-4 shadow-sm">
+            <div className="flex items-center gap-2 text-sm font-semibold text-stone-800">
+              <Sparkles className="h-4 w-4 text-amber-700" />
+              Quick access
+            </div>
+            <div className="mt-3 grid gap-3">
+              <button
+                type="button"
+                onClick={() => applyDemoLogin(demoCustomerAccount)}
+                className="rounded-2xl border border-amber-200 bg-[#fffdf8] px-4 py-3 text-left transition-colors hover:bg-amber-50"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-stone-900">Demo customer</p>
+                    <p className="text-xs text-stone-500">{demoCustomerAccount.email}</p>
+                  </div>
+                  <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-800">
+                    Account
+                  </span>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => applyDemoLogin(demoAdminAccount)}
+                className="rounded-2xl border border-amber-200 bg-[#fffdf8] px-4 py-3 text-left transition-colors hover:bg-amber-50"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-stone-900">Admin access</p>
+                    <p className="text-xs text-stone-500">{demoAdminAccount.email}</p>
+                  </div>
+                  <span className="rounded-full bg-stone-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-700">
+                    Dashboard
+                  </span>
+                </div>
+              </button>
+            </div>
+          </div>
+
           <form className="space-y-4" onSubmit={handleCustomerLogin}>
             <div className="space-y-2">
               <Label htmlFor="customer-login-email" className="text-[15px] font-medium text-stone-700">
@@ -307,7 +382,7 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
           </button>
 
           <div className="rounded-2xl border border-amber-200 bg-amber-50/70 px-4 py-3 text-xs text-stone-500">
-            Use your email and password here. Google remains optional when configured.
+            Use any saved account, or tap one of the quick-access options above. Google remains optional when configured.
           </div>
 
           <p className="pt-2 text-center text-sm text-stone-500">

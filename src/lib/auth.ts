@@ -1,8 +1,12 @@
 import { getServerSession, type NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-
-export type UserRole = "customer" | "admin";
+import {
+  getHardcodedCredentialUser as findHardcodedCredentialUser,
+  hardcodedCredentialAccounts,
+  normalizeEmail,
+  type UserRole,
+} from "@/lib/demo-credentials";
 
 export interface AuthUser {
   name: string;
@@ -11,34 +15,8 @@ export interface AuthUser {
   role: UserRole;
 }
 
-export const normalizeEmail = (email: string) => email.trim().toLowerCase();
-
-interface HardcodedCredentialAccount extends AuthUser {
-  password: string;
-}
-
-export const hardcodedCredentialAccounts: HardcodedCredentialAccount[] = [
-  {
-    name: "Demo Customer",
-    email: "customer@gmail.com",
-    password: "customer123",
-    createdAt: "2026-03-29T00:00:00.000Z",
-    role: "customer",
-  },
-  {
-    name: "Admin",
-    email: "admin@gmail.com",
-    password: "admin123",
-    createdAt: "2026-03-29T00:00:00.000Z",
-    role: "admin",
-  },
-];
-
 export const getHardcodedCredentialUser = (email: string, password: string): AuthUser | null => {
-  const normalizedEmail = normalizeEmail(email);
-  const account = hardcodedCredentialAccounts.find(
-    (entry) => entry.email === normalizedEmail && entry.password === password,
-  );
+  const account = findHardcodedCredentialUser(email, password);
 
   if (!account) {
     return null;
