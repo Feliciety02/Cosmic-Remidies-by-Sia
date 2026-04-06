@@ -66,6 +66,7 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
   const [loginErrors, setLoginErrors] = useState<FormErrors>({});
   const [createErrors, setCreateErrors] = useState<FormErrors>({});
   const [isGoogleAvailable, setIsGoogleAvailable] = useState(false);
+  const [quickAccessRole, setQuickAccessRole] = useState<HardcodedCredentialAccount["role"] | null>(null);
   const customerEmailRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -127,6 +128,29 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
     focusCustomerField();
   };
 
+  const signInDemoAccount = async (account: HardcodedCredentialAccount) => {
+    applyDemoLogin(account);
+    setQuickAccessRole(account.role);
+    setIsSubmitting(true);
+
+    try {
+      const loggedInUser = await loginCustomer({
+        email: account.email,
+        password: account.password,
+      });
+
+      if (!loggedInUser) {
+        setError("We couldn't start that demo account.");
+        return;
+      }
+
+      routeToArea(loggedInUser.role);
+    } finally {
+      setIsSubmitting(false);
+      setQuickAccessRole(null);
+    }
+  };
+
   const validateLogin = () => {
     const nextErrors: FormErrors = {};
 
@@ -170,6 +194,7 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
   const handleCustomerLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
+    setQuickAccessRole(null);
 
     if (!validateLogin()) {
       return;
@@ -194,6 +219,7 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
   const handleCreateAccount = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
+    setQuickAccessRole(null);
 
     if (!validateCreate()) {
       return;
@@ -351,13 +377,16 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
             <div className="mt-3 grid gap-3">
               <button
                 type="button"
-                onClick={() => applyDemoLogin(demoCustomerAccount)}
-                className="rounded-2xl border border-amber-200 bg-[#fffdf8] px-4 py-3 text-left transition-colors hover:bg-amber-50"
+                onClick={() => signInDemoAccount(demoCustomerAccount)}
+                disabled={isSubmitting}
+                className="rounded-2xl border border-amber-200 bg-[#fffdf8] px-4 py-3 text-left transition-colors hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="text-sm font-semibold text-stone-900">Demo customer</p>
-                    <p className="text-xs text-stone-500">{demoCustomerAccount.email}</p>
+                    <p className="text-xs text-stone-500">
+                      {quickAccessRole === "customer" && isSubmitting ? "Signing in..." : demoCustomerAccount.email}
+                    </p>
                   </div>
                   <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-800">
                     Account
@@ -366,13 +395,16 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
               </button>
               <button
                 type="button"
-                onClick={() => applyDemoLogin(demoAdminAccount)}
-                className="rounded-2xl border border-amber-200 bg-[#fffdf8] px-4 py-3 text-left transition-colors hover:bg-amber-50"
+                onClick={() => signInDemoAccount(demoAdminAccount)}
+                disabled={isSubmitting}
+                className="rounded-2xl border border-amber-200 bg-[#fffdf8] px-4 py-3 text-left transition-colors hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="text-sm font-semibold text-stone-900">Admin access</p>
-                    <p className="text-xs text-stone-500">{demoAdminAccount.email}</p>
+                    <p className="text-xs text-stone-500">
+                      {quickAccessRole === "admin" && isSubmitting ? "Opening dashboard..." : demoAdminAccount.email}
+                    </p>
                   </div>
                   <span className="rounded-full bg-stone-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-700">
                     Dashboard
