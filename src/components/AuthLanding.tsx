@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import Link from "next/link";
 import { getProviders } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -68,6 +68,11 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
   const [isGoogleAvailable, setIsGoogleAvailable] = useState(false);
   const [quickAccessRole, setQuickAccessRole] = useState<HardcodedCredentialAccount["role"] | null>(null);
   const customerEmailRef = useRef<HTMLInputElement>(null);
+  const customerPasswordRef = useRef<HTMLInputElement>(null);
+  const createNameRef = useRef<HTMLInputElement>(null);
+  const createEmailRef = useRef<HTMLInputElement>(null);
+  const createPasswordRef = useRef<HTMLInputElement>(null);
+  const [capsLockOn, setCapsLockOn] = useState<null | "login" | "create">(null);
 
   useEffect(() => {
     if (initialMode === "login" || initialMode === "create") {
@@ -165,6 +170,13 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
     }
 
     setLoginErrors(nextErrors);
+    requestAnimationFrame(() => {
+      if (nextErrors.email) {
+        customerEmailRef.current?.focus();
+      } else if (nextErrors.password) {
+        customerPasswordRef.current?.focus();
+      }
+    });
     return Object.keys(nextErrors).length === 0;
   };
 
@@ -188,7 +200,20 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
     }
 
     setCreateErrors(nextErrors);
+    requestAnimationFrame(() => {
+      if (nextErrors.name) {
+        createNameRef.current?.focus();
+      } else if (nextErrors.email) {
+        createEmailRef.current?.focus();
+      } else if (nextErrors.password) {
+        createPasswordRef.current?.focus();
+      }
+    });
     return Object.keys(nextErrors).length === 0;
+  };
+
+  const handleCapsLock = (event: KeyboardEvent<HTMLInputElement>, form: "login" | "create") => {
+    setCapsLockOn(event.getModifierState("CapsLock") ? form : null);
   };
 
   const handleCustomerLogin = async (event: FormEvent<HTMLFormElement>) => {
@@ -278,17 +303,33 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
 
     return (
       <div id={authPanelId} className={authCardClassName}>
-        <GoogleMark className="h-10 w-10" />
-        <p className="mt-5 text-sm text-muted-foreground">{isAdmin ? "Admin session active" : "Signed in"}</p>
-        <h2 className="mt-1 font-sans text-[2rem] font-medium tracking-tight text-stone-900">Welcome back, {user.name}</h2>
-        <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-          {isAdmin
-            ? "Open the dashboard to manage the platform, or return to the storefront view."
-            : "Your customer account is active. Open your dashboard, revisit your library, or keep exploring the shop."}
-        </p>
+        <div className={`rounded-[26px] border p-5 ${isAdmin ? "border-stone-300 bg-stone-50" : "border-amber-200 bg-amber-50/70"}`}>
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className={`flex h-12 w-12 items-center justify-center rounded-full ${isAdmin ? "bg-stone-900 text-white" : "bg-white text-amber-800"}`}>
+                <GoogleMark className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                  {isAdmin ? "Administrator" : "Customer account"}
+                </p>
+                <h2 className="mt-1 font-sans text-[1.9rem] font-medium tracking-tight text-stone-900">Welcome back, {user.name}</h2>
+              </div>
+            </div>
+            <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${isAdmin ? "bg-stone-200 text-stone-800" : "bg-amber-100 text-amber-800"}`}>
+              {isAdmin ? "Dashboard" : "Active"}
+            </span>
+          </div>
 
-        <div className="mt-6 rounded-full border border-amber-200 bg-amber-50/70 px-4 py-2 text-sm text-stone-700">
-          {user.email}
+          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+            {isAdmin
+              ? "Your admin session is ready. Open the dashboard to manage content, products, and store operations."
+              : "Your customer session is active. Open your account, revisit your library, or continue browsing the shop."}
+          </p>
+
+          <div className="mt-5 rounded-2xl border border-white/70 bg-white/80 px-4 py-3 text-sm text-stone-700">
+            {user.email}
+          </div>
         </div>
 
         <div className="mt-6 grid gap-4 rounded-3xl border border-amber-200 bg-amber-50/60 p-5">
@@ -447,6 +488,7 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
               <div className="relative">
                 <KeyRound className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
                 <Input
+                  ref={customerPasswordRef}
                   id="customer-login-password"
                   type={showCustomerPassword ? "text" : "password"}
                   autoComplete="current-password"
@@ -459,6 +501,9 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                     setCustomerLoginForm((current) => ({ ...current, password: event.target.value }));
                     setLoginErrors((current) => ({ ...current, password: undefined }));
                   }}
+                  onKeyUp={(event) => handleCapsLock(event, "login")}
+                  onKeyDown={(event) => handleCapsLock(event, "login")}
+                  onBlur={() => setCapsLockOn((current) => (current === "login" ? null : current))}
                   required
                 />
                 <button
@@ -471,7 +516,10 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                 </button>
               </div>
               <div className="flex items-center justify-between gap-3">
-                <div>{loginErrors.password ? <p className="text-sm text-destructive">{loginErrors.password}</p> : null}</div>
+                <div className="space-y-1">
+                  {loginErrors.password ? <p className="text-sm text-destructive">{loginErrors.password}</p> : null}
+                  {capsLockOn === "login" ? <p className="text-sm text-amber-800">Caps Lock is on.</p> : null}
+                </div>
                 <a
                   href={`mailto:${siteConfig.supportEmail}?subject=Password%20Reset%20Help`}
                   className="text-sm font-medium text-amber-800 underline-offset-2 hover:underline"
@@ -535,6 +583,7 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                 Full name
               </Label>
               <Input
+                ref={createNameRef}
                 id="create-name"
                 autoComplete="name"
                 placeholder="Your name"
@@ -557,6 +606,7 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
               <div className="relative">
                 <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
                 <Input
+                  ref={createEmailRef}
                   id="create-email"
                   type="email"
                   autoComplete="email"
@@ -581,6 +631,7 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
               <div className="relative">
                 <KeyRound className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
                 <Input
+                  ref={createPasswordRef}
                   id="create-password"
                   type={showCreatePassword ? "text" : "password"}
                   autoComplete="new-password"
@@ -593,6 +644,9 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                     setCreateForm((current) => ({ ...current, password: event.target.value }));
                     setCreateErrors((current) => ({ ...current, password: undefined }));
                   }}
+                  onKeyUp={(event) => handleCapsLock(event, "create")}
+                  onKeyDown={(event) => handleCapsLock(event, "create")}
+                  onBlur={() => setCapsLockOn((current) => (current === "create" ? null : current))}
                   required
                 />
                 <button
@@ -604,7 +658,10 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                   <PasswordToggleIcon visible={showCreatePassword} />
                 </button>
               </div>
-              {createErrors.password ? <p className="text-sm text-destructive">{createErrors.password}</p> : null}
+              <div className="space-y-1">
+                {createErrors.password ? <p className="text-sm text-destructive">{createErrors.password}</p> : null}
+                {capsLockOn === "create" ? <p className="text-sm text-amber-800">Caps Lock is on.</p> : null}
+              </div>
             </div>
             <Button type="submit" className="h-11 w-full gap-2 rounded-md bg-[linear-gradient(135deg,#caa16f_0%,#8b6440_100%)] text-base font-semibold text-[#fff9f0] hover:brightness-105" disabled={isSubmitting}>
               <UserPlus className="h-4 w-4" />
