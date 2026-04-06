@@ -8,7 +8,7 @@ import { ArrowRight, Eye, EyeOff, KeyRound, Mail, ShieldCheck, Sparkles, UserPlu
 import GoogleMark from "@/components/GoogleMark";
 import { useAuth } from "@/contexts/AuthContext";
 import { hardcodedCredentialAccounts, type HardcodedCredentialAccount } from "@/lib/demo-credentials";
-import { authPanelId, buildAuthHref } from "@/lib/site";
+import { authPanelId, buildAuthHref, siteConfig } from "@/lib/site";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +18,12 @@ type AuthMode = "login" | "create";
 interface AuthLandingProps {
   initialMode?: AuthMode;
   initialError?: string;
+}
+
+interface FormErrors {
+  email?: string;
+  password?: string;
+  name?: string;
 }
 
 const modeContent: Record<AuthMode, { title: string; description: string }> = {
@@ -45,6 +51,7 @@ const authErrorMessages: Record<string, string> = {
 
 const demoCustomerAccount = hardcodedCredentialAccounts.find((account) => account.role === "customer")!;
 const demoAdminAccount = hardcodedCredentialAccounts.find((account) => account.role === "admin")!;
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) => {
   const router = useRouter();
@@ -56,6 +63,8 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
   const [customerLoginForm, setCustomerLoginForm] = useState({ email: "", password: "" });
   const [createForm, setCreateForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
+  const [loginErrors, setLoginErrors] = useState<FormErrors>({});
+  const [createErrors, setCreateErrors] = useState<FormErrors>({});
   const [isGoogleAvailable, setIsGoogleAvailable] = useState(false);
   const customerEmailRef = useRef<HTMLInputElement>(null);
 
@@ -98,6 +107,8 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
   const setActiveMode = (nextMode: AuthMode) => {
     setMode(nextMode);
     setError(null);
+    setLoginErrors({});
+    setCreateErrors({});
     router.replace(buildAuthHref(nextMode), { scroll: false });
   };
 
@@ -110,14 +121,60 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
   const applyDemoLogin = (account: HardcodedCredentialAccount) => {
     setMode("login");
     setError(null);
+    setLoginErrors({});
     setCustomerLoginForm({ email: account.email, password: account.password });
     router.replace(buildAuthHref("login"), { scroll: false });
     focusCustomerField();
   };
 
+  const validateLogin = () => {
+    const nextErrors: FormErrors = {};
+
+    if (!customerLoginForm.email.trim()) {
+      nextErrors.email = "Email is required.";
+    } else if (!emailPattern.test(customerLoginForm.email.trim())) {
+      nextErrors.email = "Enter a valid email address.";
+    }
+
+    if (!customerLoginForm.password.trim()) {
+      nextErrors.password = "Password is required.";
+    }
+
+    setLoginErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
+
+  const validateCreate = () => {
+    const nextErrors: FormErrors = {};
+
+    if (!createForm.name.trim()) {
+      nextErrors.name = "Full name is required.";
+    }
+
+    if (!createForm.email.trim()) {
+      nextErrors.email = "Email is required.";
+    } else if (!emailPattern.test(createForm.email.trim())) {
+      nextErrors.email = "Enter a valid email address.";
+    }
+
+    if (!createForm.password.trim()) {
+      nextErrors.password = "Password is required.";
+    } else if (createForm.password.trim().length < 6) {
+      nextErrors.password = "Use at least 6 characters.";
+    }
+
+    setCreateErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
+
   const handleCustomerLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
+
+    if (!validateLogin()) {
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -137,6 +194,11 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
   const handleCreateAccount = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
+
+    if (!validateCreate()) {
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -333,12 +395,18 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                   type="email"
                   autoComplete="email"
                   placeholder="you@example.com"
-                  className="h-11 rounded-md border-amber-200 bg-white pl-11 pr-4 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
+                  className={`h-11 rounded-md bg-white pl-11 pr-4 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30 ${
+                    loginErrors.email ? "border-destructive/50" : "border-amber-200"
+                  }`}
                   value={customerLoginForm.email}
-                  onChange={(event) => setCustomerLoginForm((current) => ({ ...current, email: event.target.value }))}
+                  onChange={(event) => {
+                    setCustomerLoginForm((current) => ({ ...current, email: event.target.value }));
+                    setLoginErrors((current) => ({ ...current, email: undefined }));
+                  }}
                   required
                 />
               </div>
+              {loginErrors.email ? <p className="text-sm text-destructive">{loginErrors.email}</p> : null}
             </div>
             <div className="space-y-2">
               <Label htmlFor="customer-login-password" className="text-[15px] font-medium text-stone-700">
@@ -351,9 +419,14 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                   type={showCustomerPassword ? "text" : "password"}
                   autoComplete="current-password"
                   placeholder="Enter your password"
-                  className="h-11 rounded-md border-amber-200 bg-white pl-11 pr-11 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
+                  className={`h-11 rounded-md bg-white pl-11 pr-11 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30 ${
+                    loginErrors.password ? "border-destructive/50" : "border-amber-200"
+                  }`}
                   value={customerLoginForm.password}
-                  onChange={(event) => setCustomerLoginForm((current) => ({ ...current, password: event.target.value }))}
+                  onChange={(event) => {
+                    setCustomerLoginForm((current) => ({ ...current, password: event.target.value }));
+                    setLoginErrors((current) => ({ ...current, password: undefined }));
+                  }}
                   required
                 />
                 <button
@@ -365,24 +438,35 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                   <PasswordToggleIcon visible={showCustomerPassword} />
                 </button>
               </div>
+              <div className="flex items-center justify-between gap-3">
+                <div>{loginErrors.password ? <p className="text-sm text-destructive">{loginErrors.password}</p> : null}</div>
+                <a
+                  href={`mailto:${siteConfig.supportEmail}?subject=Password%20Reset%20Help`}
+                  className="text-sm font-medium text-amber-800 underline-offset-2 hover:underline"
+                >
+                  Forgot password?
+                </a>
+              </div>
             </div>
             <Button type="submit" className="h-11 w-full rounded-md bg-[linear-gradient(135deg,#caa16f_0%,#8b6440_100%)] text-base font-semibold text-[#fff9f0] hover:brightness-105" disabled={isSubmitting}>
               {isSubmitting ? "Signing in..." : "Sign In to Your Account"}
             </Button>
           </form>
 
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            disabled={isSubmitting}
-            className="flex h-11 w-full items-center justify-center gap-3 rounded-md border border-amber-200 bg-amber-50/70 px-4 text-sm font-medium text-stone-700 transition-colors hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            <GoogleMark className="h-5 w-5" />
-            {isGoogleAvailable ? "Continue with Google" : "Google sign-in not configured"}
-          </button>
+          {isGoogleAvailable ? (
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              disabled={isSubmitting}
+              className="flex h-11 w-full items-center justify-center gap-3 rounded-md border border-amber-200 bg-amber-50/70 px-4 text-sm font-medium text-stone-700 transition-colors hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              <GoogleMark className="h-5 w-5" />
+              Continue with Google
+            </button>
+          ) : null}
 
           <div className="rounded-2xl border border-amber-200 bg-amber-50/70 px-4 py-3 text-xs text-stone-500">
-            Use any saved account, or tap one of the quick-access options above. Google remains optional when configured.
+            Use any saved account, or tap one of the quick-access options above.
           </div>
 
           <p className="pt-2 text-center text-sm text-stone-500">
@@ -422,11 +506,17 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                 id="create-name"
                 autoComplete="name"
                 placeholder="Your name"
-                className="h-11 rounded-md border-amber-200 bg-white text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
+                className={`h-11 rounded-md bg-white text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30 ${
+                  createErrors.name ? "border-destructive/50" : "border-amber-200"
+                }`}
                 value={createForm.name}
-                onChange={(event) => setCreateForm((current) => ({ ...current, name: event.target.value }))}
+                onChange={(event) => {
+                  setCreateForm((current) => ({ ...current, name: event.target.value }));
+                  setCreateErrors((current) => ({ ...current, name: undefined }));
+                }}
                 required
               />
+              {createErrors.name ? <p className="text-sm text-destructive">{createErrors.name}</p> : null}
             </div>
             <div className="space-y-2">
               <Label htmlFor="create-email" className="text-[15px] font-medium text-stone-700">
@@ -439,12 +529,18 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                   type="email"
                   autoComplete="email"
                   placeholder="you@example.com"
-                  className="h-11 rounded-md border-amber-200 bg-white pl-11 pr-4 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
+                  className={`h-11 rounded-md bg-white pl-11 pr-4 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30 ${
+                    createErrors.email ? "border-destructive/50" : "border-amber-200"
+                  }`}
                   value={createForm.email}
-                  onChange={(event) => setCreateForm((current) => ({ ...current, email: event.target.value }))}
+                  onChange={(event) => {
+                    setCreateForm((current) => ({ ...current, email: event.target.value }));
+                    setCreateErrors((current) => ({ ...current, email: undefined }));
+                  }}
                   required
                 />
               </div>
+              {createErrors.email ? <p className="text-sm text-destructive">{createErrors.email}</p> : null}
             </div>
             <div className="space-y-2">
               <Label htmlFor="create-password" className="text-[15px] font-medium text-stone-700">
@@ -457,9 +553,14 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                   type={showCreatePassword ? "text" : "password"}
                   autoComplete="new-password"
                   placeholder="Create a password"
-                  className="h-11 rounded-md border-amber-200 bg-white pl-11 pr-11 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30"
+                  className={`h-11 rounded-md bg-white pl-11 pr-11 text-stone-700 placeholder:text-stone-400 focus-visible:ring-amber-400/30 ${
+                    createErrors.password ? "border-destructive/50" : "border-amber-200"
+                  }`}
                   value={createForm.password}
-                  onChange={(event) => setCreateForm((current) => ({ ...current, password: event.target.value }))}
+                  onChange={(event) => {
+                    setCreateForm((current) => ({ ...current, password: event.target.value }));
+                    setCreateErrors((current) => ({ ...current, password: undefined }));
+                  }}
                   required
                 />
                 <button
@@ -471,6 +572,7 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
                   <PasswordToggleIcon visible={showCreatePassword} />
                 </button>
               </div>
+              {createErrors.password ? <p className="text-sm text-destructive">{createErrors.password}</p> : null}
             </div>
             <Button type="submit" className="h-11 w-full gap-2 rounded-md bg-[linear-gradient(135deg,#caa16f_0%,#8b6440_100%)] text-base font-semibold text-[#fff9f0] hover:brightness-105" disabled={isSubmitting}>
               <UserPlus className="h-4 w-4" />
@@ -478,15 +580,17 @@ const AuthLanding = ({ initialMode = "login", initialError }: AuthLandingProps) 
             </Button>
           </form>
 
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            disabled={isSubmitting}
-            className="flex h-11 w-full items-center justify-center gap-3 rounded-md border border-amber-200 bg-amber-50/70 px-4 text-sm font-medium text-stone-700 transition-colors hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            <GoogleMark className="h-5 w-5" />
-            {isGoogleAvailable ? "Create with Google" : "Google sign-in not configured"}
-          </button>
+          {isGoogleAvailable ? (
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              disabled={isSubmitting}
+              className="flex h-11 w-full items-center justify-center gap-3 rounded-md border border-amber-200 bg-amber-50/70 px-4 text-sm font-medium text-stone-700 transition-colors hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              <GoogleMark className="h-5 w-5" />
+              Create with Google
+            </button>
+          ) : null}
 
           <div className="rounded-2xl border border-amber-200 bg-amber-50/70 px-4 py-3 text-xs text-stone-500">
             Customer accounts are stored locally in this environment so you can complete signup and onboarding immediately.
