@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { siteConfig } from "@/lib/site";
 
 const ContactForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,7 +49,7 @@ const ContactForm = () => {
         throw new Error("Contact submission failed");
       }
 
-      toast.success("Message received. We will reply within 24 hours.");
+      toast.success(`Message received. We will reply ${siteConfig.responseTime}.`);
       form.reset();
     } catch {
       toast.error("We couldn't send your message right now. Please try again.");

@@ -6,7 +6,7 @@ import { buildMetadata, siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = buildMetadata({
   title: "Do Not Sell or Share My Personal Information",
-  description: "California privacy disclosures and opt-out instructions for visitors to Cosmic Remedies by Sia.",
+  description: `California privacy disclosures and opt-out instructions for visitors to ${siteConfig.name}.`,
   path: "/do-not-sell",
 });
 

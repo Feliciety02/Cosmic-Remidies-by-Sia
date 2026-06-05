@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { buildMetadata } from "@/lib/site";
+import { buildMetadata, siteConfig } from "@/lib/site";
 import OrdersPage from "@/admin/Orders";
 
 export const metadata: Metadata = buildMetadata({
   title: "Admin Orders",
-  description: "Order management for Cosmic Remedies by Sia.",
+  description: `Order management for ${siteConfig.name}.`,
   path: "/admin/orders",
   noIndex: true,
 });

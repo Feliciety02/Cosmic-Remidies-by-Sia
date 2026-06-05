@@ -1,6 +1,7 @@
 import { products as storefrontProducts, testimonials as storefrontTestimonials } from "@/data/products";
 import type { EditableProduct } from "@/components/admin/ProductModal";
 import type { CheckoutOrderSnapshot } from "@/lib/checkout";
+import { siteConfig } from "@/lib/site";
 
 export interface AdminDiscountCode {
   id: number;
@@ -211,21 +212,21 @@ export const initialSettings: AdminStoreSettings = {
     autoTax: false,
   },
   general: {
-    storeName: "Cosmic Remedies by Sia",
-    contactEmail: "hello@cosmicremedies.com",
-    storeUrl: "https://cosmicremediesbysia.com",
+    storeName: siteConfig.name,
+    contactEmail: siteConfig.supportEmail,
+    storeUrl: siteConfig.storeUrl,
     timezone: "ist",
   },
   branding: {
     logoFileName: "brandmark-v2.svg",
-    primaryColor: "#4d9e8e",
-    accentColor: "#c5973e",
+    primaryColor: "#8b6440",
+    accentColor: "#caa16f",
   },
 };
 
 export const initialAdminUsers: AdminUserRecord[] = [
-  { name: "Sia", email: "sia@cosmicremedies.com", role: "Owner", status: "Active" },
-  { name: "Assistant", email: "assistant@cosmicremedies.com", role: "Editor", status: "Active" },
+  { name: "Sia", email: "sia@cosmicremediesbysia.com", role: "Owner", status: "Active" },
+  { name: "Assistant", email: "assistant@cosmicremediesbysia.com", role: "Editor", status: "Active" },
 ];
 
 export const initialAdminOrders: AdminOrderRecord[] = [

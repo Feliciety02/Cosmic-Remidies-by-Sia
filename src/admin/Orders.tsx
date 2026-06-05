@@ -51,7 +51,7 @@ const Orders = () => {
 
       return matchesFilter && matchesPayment && matchesQuery;
     });
-  }, [activeFilter, paymentFilter, query]);
+  }, [activeFilter, orders, paymentFilter, query]);
 
   const pageSize = 5;
   const paginatedOrders = filteredOrders.slice((page - 1) * pageSize, page * pageSize);

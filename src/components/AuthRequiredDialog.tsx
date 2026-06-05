@@ -22,7 +22,7 @@ interface AuthRequiredDialogProps {
 
 const dialogCopy = {
   guest: {
-    title: "Login required to add items",
+    title: "Sign in required to add items",
     description: "Create an account to save and access your items before adding guides to your cart.",
   },
   admin: {
@@ -50,7 +50,7 @@ const AuthRequiredDialog = ({ open, onOpenChange, variant = "guest" }: AuthRequi
           <Link
             href={buildAuthHref("login")}
             onClick={() => onOpenChange(false)}
-            className="mt-5 flex w-full items-center justify-between rounded-[22px] border border-border/70 bg-background px-4 py-4 text-left transition-colors hover:border-primary/30 hover:bg-teal-light/10"
+            className="mt-5 flex w-full items-center justify-between rounded-[22px] border border-border/70 bg-background px-4 py-4 text-left transition-colors hover:border-primary/30 hover:bg-warm-light/10"
           >
             <div className="flex items-center gap-3">
               <span className="flex h-11 w-11 items-center justify-center rounded-full border border-border/70 bg-card">
@@ -75,12 +75,12 @@ const AuthRequiredDialog = ({ open, onOpenChange, variant = "guest" }: AuthRequi
           <DialogFooter className="mt-6 flex-col gap-3 sm:flex-col sm:space-x-0">
             <Button asChild className="h-12 w-full gap-2 rounded-2xl text-base">
               <Link href={buildAuthHref("login")} onClick={() => onOpenChange(false)}>
-                Login <KeyRound className="h-4 w-4" />
+                Sign in <KeyRound className="h-4 w-4" />
               </Link>
             </Button>
             <Button asChild variant="outline" className="h-12 w-full gap-2 rounded-2xl text-base">
               <Link href={buildAuthHref("create")} onClick={() => onOpenChange(false)}>
-                Sign Up <UserPlus className="h-4 w-4" />
+                Create account <UserPlus className="h-4 w-4" />
               </Link>
             </Button>
           </DialogFooter>

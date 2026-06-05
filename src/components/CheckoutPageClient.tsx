@@ -56,7 +56,7 @@ const CheckoutPageClient = () => {
         </p>
         <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
           <Button asChild>
-            <Link href="/?auth=login">Open Login</Link>
+            <Link href="/?auth=login">Sign in</Link>
           </Button>
           <Button asChild variant="outline">
             <Link href="/cart">Back to Cart</Link>
@@ -223,7 +223,7 @@ const CheckoutPageClient = () => {
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <Button type="submit" size="lg" className="flex-1 gap-2 text-base" disabled={isSubmitting}>
             <LockKeyhole className="h-4 w-4" />
-            {isSubmitting ? "Processing..." : `Place Order • $${summary.total}`}
+            {isSubmitting ? "Processing..." : `Place Order - $${summary.total}`}
           </Button>
           <Button asChild type="button" variant="outline" size="lg">
             <Link href="/cart">Back to Cart</Link>
@@ -243,7 +243,7 @@ const CheckoutPageClient = () => {
                 <div>
                   <p className="font-medium text-stone-800">{item.title}</p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Qty {item.qty} • ${item.price} each
+                    Qty {item.qty} - ${item.price} each
                   </p>
                 </div>
                 <p className="font-semibold text-stone-800">${item.qty * item.price}</p>

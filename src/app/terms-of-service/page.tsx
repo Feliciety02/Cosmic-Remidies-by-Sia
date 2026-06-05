@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
-import { buildMetadata } from "@/lib/site";
+import { buildMetadata, siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = buildMetadata({
   title: "Terms of Service",
-  description: "Read the customer terms for buying and using digital PDF guides from Cosmic Remedies by Sia.",
+  description: `Read the customer terms for buying and using digital PDF guides from ${siteConfig.name}.`,
   path: "/terms-of-service",
 });
 

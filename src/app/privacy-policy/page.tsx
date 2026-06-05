@@ -5,7 +5,7 @@ import { buildMetadata, siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = buildMetadata({
   title: "Privacy Policy",
-  description: "Learn what data Cosmic Remedies by Sia collects, why it is collected, and how privacy requests are handled.",
+  description: `Learn what data ${siteConfig.name} collects, why it is collected, and how privacy requests are handled.`,
   path: "/privacy-policy",
 });
 

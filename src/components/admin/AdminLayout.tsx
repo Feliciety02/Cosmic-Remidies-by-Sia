@@ -9,6 +9,7 @@ import logo from "@/assets/logo.svg";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 interface AdminLayoutProps {
@@ -40,7 +41,7 @@ const AdminNav = ({
     <div className="border-b border-white/70 px-5 py-6">
       <Link href="/admin" className="flex items-center gap-3" onClick={onNavigate}>
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-amber-200/70 bg-white shadow-[0_12px_30px_rgba(104,75,42,0.14)]">
-          <Image src={logo} alt="Cosmic Remedies by Sia" className="h-8 w-auto" priority />
+          <Image src={logo} alt={siteConfig.name} className="h-8 w-auto" priority />
         </div>
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">Admin Suite</p>

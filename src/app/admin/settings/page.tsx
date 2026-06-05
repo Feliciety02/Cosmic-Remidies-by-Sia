@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { buildMetadata } from "@/lib/site";
+import { buildMetadata, siteConfig } from "@/lib/site";
 import SettingsPage from "@/admin/Settings";
 
 export const metadata: Metadata = buildMetadata({
   title: "Admin Settings",
-  description: "Admin settings for Cosmic Remedies by Sia.",
+  description: `Admin settings for ${siteConfig.name}.`,
   path: "/admin/settings",
   noIndex: true,
 });

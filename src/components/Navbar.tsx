@@ -9,7 +9,7 @@ import logo from "@/assets/logo.svg";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { cn } from "@/lib/utils";
-import { buildAuthHref, primaryNavLinks } from "@/lib/site";
+import { buildAuthHref, primaryNavLinks, siteConfig } from "@/lib/site";
 import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
@@ -46,7 +46,7 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 border-b border-amber-900/10 bg-[rgba(251,246,237,0.9)] backdrop-blur-xl">
       <div className="container mx-auto flex items-center justify-between px-4 py-4">
         <Link href="/" className="flex items-center gap-3">
-          <Image src={logo} alt="Cosmic Remedies by Sia" className="h-10 w-auto md:h-12" priority />
+          <Image src={logo} alt={siteConfig.name} className="h-10 w-auto md:h-12" priority />
         </Link>
 
         <div className="hidden items-center gap-10 md:flex">
@@ -72,7 +72,7 @@ const Navbar = () => {
               className="hidden rounded-full border-amber-900/10 bg-white/70 md:inline-flex"
               onClick={handleLogout}
             >
-              Logout
+              Sign out
             </Button>
           ) : null}
           <Button
@@ -80,7 +80,7 @@ const Navbar = () => {
             className="hidden rounded-full border-0 bg-[linear-gradient(135deg,#caa16f_0%,#8b6440_100%)] text-[#fff9f0] shadow-[0_10px_30px_rgba(131,94,55,0.24)] transition-all hover:brightness-105 md:inline-flex"
           >
             <Link href={user ? accountHref : buildAuthHref("login")}>
-              {isAuthHydrated && user ? accountLabel : "Login"}
+              {isAuthHydrated && user ? accountLabel : "Sign in"}
             </Link>
           </Button>
           {isCustomer ? (
@@ -126,7 +126,7 @@ const Navbar = () => {
             className="mt-4 w-full border-0 bg-[linear-gradient(135deg,#caa16f_0%,#8b6440_100%)] text-[#fff9f0] shadow-[0_10px_30px_rgba(131,94,55,0.22)] transition-all hover:brightness-105"
           >
             <Link href={user ? accountHref : buildAuthHref("login")}>
-              {isAuthHydrated && user ? accountLabel : "Login"}
+              {isAuthHydrated && user ? accountLabel : "Sign in"}
             </Link>
           </Button>
           {isAuthHydrated && user ? (
@@ -136,7 +136,7 @@ const Navbar = () => {
               className="mt-3 w-full border-amber-900/10 bg-white/70"
               onClick={handleLogout}
             >
-              Logout
+              Sign out
             </Button>
           ) : null}
         </div>

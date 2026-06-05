@@ -49,7 +49,7 @@ const ThankYouPageClient = () => {
                   <div>
                     <p className="font-medium">{item.title}</p>
                     <p className="text-sm text-muted-foreground">
-                      Qty {item.qty} • ${item.price} each
+                      Qty {item.qty} - ${item.price} each
                     </p>
                   </div>
                   <p className="font-semibold">${item.qty * item.price}</p>
@@ -99,7 +99,7 @@ const ThankYouPageClient = () => {
               </div>
             </div>
 
-            <div className="rounded-[1.75rem] border bg-teal-light/30 p-6">
+            <div className="rounded-[1.75rem] border bg-warm-light/30 p-6">
               <h2 className="mb-2 font-display text-lg font-bold">Continue Your Journey</h2>
               <p className="mb-4 text-sm text-muted-foreground">Browse more guides or return to the shop for another order.</p>
               <div className="flex flex-col gap-3 sm:flex-row">

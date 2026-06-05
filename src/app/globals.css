@@ -39,8 +39,8 @@
 
     --gold: 35 52% 58%;
     --gold-light: 38 64% 78%;
-    --teal-light: 37 38% 90%;
-    --teal-dark: 28 37% 38%;
+    --warm-light: 37 38% 90%;
+    --warm-dark: 28 37% 38%;
 
     --sidebar-background: 36 38% 94%;
     --sidebar-foreground: 26 24% 22%;
@@ -106,7 +106,7 @@
 }
 
 @layer utilities {
-  .text-gradient-teal {
+  .text-gradient-earth {
     @apply bg-clip-text text-transparent;
     background-image: linear-gradient(135deg, hsl(35 48% 54%), hsl(28 37% 38%));
   }
@@ -116,7 +116,7 @@
     background-image: linear-gradient(135deg, hsl(38 64% 78%), hsl(35 52% 58%));
   }
 
-  .bg-gradient-teal {
+  .bg-gradient-earth {
     background: linear-gradient(135deg, hsl(35 48% 54%), hsl(28 37% 38%));
   }
 
@@ -125,7 +125,7 @@
   }
 
   .gradient-primary {
-    @apply bg-gradient-teal;
+    @apply bg-gradient-earth;
   }
 
   .gradient-gold {

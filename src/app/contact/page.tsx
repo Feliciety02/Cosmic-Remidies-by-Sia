@@ -7,7 +7,7 @@ import { buildMetadata, siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = buildMetadata({
   title: "Contact",
-  description: "Reach out to Cosmic Remedies by Sia for support, product questions, or partnership inquiries.",
+  description: `Reach out to ${siteConfig.name} for support, product questions, or partnership inquiries.`,
   path: "/contact",
 });
 
@@ -27,7 +27,7 @@ const ContactPage = () => (
         <div className="rounded-lg border bg-card p-6 text-center">
           <MessageCircle className="mx-auto mb-3 h-6 w-6 text-primary" />
           <h3 className="mb-1 text-sm font-semibold">Response Time</h3>
-          <p className="text-sm text-muted-foreground">Usually within 24 hours</p>
+          <p className="text-sm text-muted-foreground">Usually {siteConfig.responseTime}</p>
         </div>
       </div>
 

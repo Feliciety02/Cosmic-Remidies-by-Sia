@@ -11,10 +11,10 @@ import TrustBar from "@/components/TrustBar";
 import type { HomepageContent } from "@/content/homepage-content";
 import { products } from "@/data/products";
 import { getHomepageContent } from "@/lib/homepage-content-store";
-import { buildAuthHref, buildMetadata } from "@/lib/site";
+import { buildAuthHref, buildMetadata, siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Cosmic Remedies by Sia",
+  title: siteConfig.name,
   description:
     "Explore premium spiritual guides, Vedic remedies, and cosmic healing resources designed for modern seekers.",
   path: "/",

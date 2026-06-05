@@ -91,7 +91,7 @@ const Footer = () => {
       <div className="container mx-auto px-4 py-8 sm:py-9">
         <div className="grid grid-cols-1 gap-8 border-b border-white/10 pb-7 lg:grid-cols-2 lg:gap-12">
           <div className="lg:pr-8">
-            <Image src={logo} alt="Cosmic Remedies by Sia" className="h-12 w-auto brightness-200 sm:h-14" />
+            <Image src={logo} alt={siteConfig.name} className="h-12 w-auto brightness-200 sm:h-14" />
             <p className="mt-5 text-lg font-medium leading-snug text-primary-foreground">
               Sign up to receive spiritual guidance, product updates, and cosmic wellness tips.
             </p>
@@ -147,7 +147,7 @@ const Footer = () => {
                   {siteConfig.supportEmail}
                 </Link>
                 <span>Based in {siteConfig.location}</span>
-                <span>Replies within 24 hours</span>
+                <span>Replies {siteConfig.responseTime}</span>
               </div>
             </div>
           </div>

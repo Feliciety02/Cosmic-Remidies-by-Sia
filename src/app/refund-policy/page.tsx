@@ -5,7 +5,7 @@ import { buildMetadata, siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = buildMetadata({
   title: "Refund Policy",
-  description: "Understand the 30-day refund terms for digital products purchased from Cosmic Remedies by Sia.",
+  description: `Understand the 30-day refund terms for digital products purchased from ${siteConfig.name}.`,
   path: "/refund-policy",
 });
 

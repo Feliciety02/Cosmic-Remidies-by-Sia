@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import PrivacyPreferencesPanel from "@/components/PrivacyPreferencesPanel";
-import { buildMetadata } from "@/lib/site";
+import { buildMetadata, siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = buildMetadata({
   title: "Cookie Settings",
-  description: "Review how cookie consent and privacy preferences are handled on Cosmic Remedies by Sia.",
+  description: `Review how cookie consent and privacy preferences are handled on ${siteConfig.name}.`,
   path: "/cookie-settings",
 });
 

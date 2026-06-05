@@ -5,7 +5,9 @@ export const siteConfig = {
   description:
     "Premium spiritual guides, Vedic remedies, and cosmic healing resources delivered instantly to your inbox.",
   supportEmail: "support@cosmicremediesbysia.com",
+  storeUrl: "https://cosmicremediesbysia.com",
   location: "India",
+  responseTime: "within 24 hours",
 };
 
 export const primaryNavLinks = [

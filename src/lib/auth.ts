@@ -43,7 +43,7 @@ const providers = [
     : []),
   CredentialsProvider({
     id: "credentials",
-    name: "Account Login",
+    name: "Account Sign In",
     credentials: {
       email: { label: "Email", type: "email" },
       password: { label: "Password", type: "password" },
